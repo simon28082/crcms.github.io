@@ -1,5 +1,5 @@
 ---
-title: hexo
+title: 放弃wordpress，集成hexo
 date: 2019-03-31 07:02:57
 tags:
   - hexo
@@ -7,8 +7,6 @@ tags:
 categories:
   - 其他
 ---
-
-# 放弃wordpress，集成hexo
 
 ## 原因
 经常迁移太麻烦，不如直接`github`+`hexo`
