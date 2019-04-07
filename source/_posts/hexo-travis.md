@@ -8,7 +8,7 @@ tags:
 
 ## 增加github token至travis ci
 - 在`github Settings->Developer settings->Personal access tokens生成一个travis token`
-![](/images/hexo-travis/generate-new-token.png, "Generate new token") 当出现如图Connection successful，则表示连接成功
+![](/images/hexo-travis/generate-new-token.png "Generate new token") 当出现如图Connection successful，则表示连接成功
 - 进入`travis ci`项目`settings->Environment Variables`增加`token`值为环境变量
 
 ## 设置travis.yml
