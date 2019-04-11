@@ -35,11 +35,7 @@ date: 2018-05-30 16:38:16
     settings->Project->Interpreter
     
 
-<<<<<<< HEAD
 ![](/images/wp-content/uploads/2018/05/3.png) 选择Docker镜像，如果没有则点击`Add`，如图： ![](/images/wp-content/uploads/2018/05/4.png)
-=======
-![](/images/wp-content/uploads/2018/05/3.png) 选择Docker镜像，如果没有则点击`Add`，如图： ![](http://blog.crcms.cn/wp-content/uploads/2018/05/4.png)
->>>>>>> source
 
 ### 4、测试
 
