@@ -1,0 +1,35 @@
+menu:
+#  项目作品: /projects
+  关于我: /about
+#rss: /atom.xml
+# description: blog description
+social:
+  github: https://github.com/crcms
+#  twitter: https://twitter.com/lenbo_
+#  weibo: 
+#  stack_overflow: 
+#  facebook: 
+#  google_plus: 
+
+page_comment: false
+logo: /images/logo2.jpg
+background:
+  cover: /images/background-cover.jpg
+  color: cover-blue
+
+#cover-blue - #2568A3
+#cover-green - #156F78
+#cover-purple - #493252
+#cover-red - #E25440
+#cover-orange - #FB9C50
+#cover-slate - #3D4260
+#cover-disabled - 透明
+
+
+archive_date_format: MMM DD
+fancybox: true
+
+# duoshuo_shortname: 
+
+# google_analytics: 
+favicon: /images/favicon.png
