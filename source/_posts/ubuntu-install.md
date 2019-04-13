@@ -206,3 +206,16 @@ systemd-analyze blame
 sudo systemctl mask plymouth-start.service
 sudo systemctl mask plymouth-read-write.service
 ```
+
+#### 网易云音乐`1.1.0`后不能打开的解决方法
+
+```bash
+# 使用root权限命令行后台启动并且屏蔽输出
+sudo netease-cloud-music > /dev/null 2>&1 &
+# 规避session-manager引起的bug
+alias netease='unset SESSION_MANAGER && netease-cloud-music'
+netease > /dev/null &
+```
+
+推荐使用这个第三方`client`
+[https://github.com/trazyn/ieaseMusic](https://github.com/trazyn/ieaseMusic)
