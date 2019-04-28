@@ -2,6 +2,10 @@
 title: Gitlab+Jenkins+Bash 搭建多流水线自动部署
 date: 2019-04-26 07:21:14
 tags:
+  - gitlab
+  - jenkins
+  - pipeline
+  - 自动部署
 ---
 
 ![jenkins pipeline](/images/jenkins-gitlab-bash/1.png "jenkins pipeline")
