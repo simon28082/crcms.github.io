@@ -47,7 +47,7 @@ docker-compose up -d jenkins
 
 ### 关于自动部署
 使用的是`scp`+`ssh`+`ssh-key`+`hook.sh`来实现的自动远程部署以及部署后需要执行的命令
-- 服务器增加远程部署帐号（如果需要`sudo`，则要开启`sudo`免密）
+- 服务器增加远程部署帐号（如果需要`sudo`，则要开启`sudo`免密，在`sudoers.d`中增加`account ALL=(ALL:ALL) NOPASSWD: ALL`，具体权限以项目需求为准）
 - 使用`scp`上传
 - `ssh` 登录，并执行常规操作
 - `hook.sh` 进行部署的后期操作
