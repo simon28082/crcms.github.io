@@ -5,7 +5,7 @@
 # Site
 title: CRCMS
 subtitle: 致力于打造全面化的开源CMS系统
-description:
+description: 大道至简
 keywords:
 author: simon
 language: zh-cn
@@ -73,7 +73,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: next
+theme: vno
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
