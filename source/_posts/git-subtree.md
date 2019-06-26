@@ -70,7 +70,12 @@ git subtree push -P src/B https://github.com/B.git master
 set -euo pipefail
 
 TARGET_DIRECTORY="$(pwd)/src"
-BRANCH="master"
+
+function git.branch {
+  br=`git branch | grep "*"`
+  echo ${br/* /}
+}
+BRANCH=$(git.branch)
 
 # each所有目录
 for file in `ls ${TARGET_DIRECTORY}`
