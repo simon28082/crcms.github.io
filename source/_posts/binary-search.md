@@ -1,5 +1,5 @@
 ---
-title: dichotomy
+title: Golang 二分法查找
 date: 2019-08-09 14:58:17
 tags:
   - 二分法查找
@@ -7,10 +7,8 @@ tags:
   - 数据结构算法
 ---
 
-## Golang 二分法查找
 
-
-### 递归二分调用
+## 递归二分法查找
 ```go
 func BinarySearch(array []int, target int, params ...int) int {
 	length := len(array)
@@ -55,4 +53,6 @@ func TestBinarySearch(t *testing.T) {
 	assert.Equal(t,4,BinarySearch(array, 5))
 }
 ```
+
+> 二分法的提前是有序的排序
 
