@@ -2,6 +2,7 @@
 title: ubuntu18.04 安装
 date: 2019-04-13 03:25:31
 tags:
+  - ubuntu
 ---
 
 ## 简述
