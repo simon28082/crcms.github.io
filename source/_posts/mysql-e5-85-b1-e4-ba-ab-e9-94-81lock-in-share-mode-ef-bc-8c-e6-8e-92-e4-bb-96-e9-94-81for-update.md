@@ -1,6 +1,7 @@
 ---
 title: Mysql 共享锁(lock in share mode)，排他锁(for update)
 tags:
+  - mysql
   - 共享锁
   - 排他锁
 url: 109.html
