@@ -17,9 +17,11 @@ GTID自动检测二进制日志的位置。
 此标识符是唯一的，不仅在其主库上，在给定的复制设置中的所有数据库上，它都是唯一的。
 所有事务和所有GTID之间都是一对一的映射关系。
 GTID用一对坐标表示，用冒号（：）分隔：
+
 ```
 GTID = source_id:transaction_id
 ``` 
+
 source_id是主库的标识。通常，服务器的server_uuid选项就代表此标识。transaction_id 是一个序列号，由在该服务器上提交事务的顺序决定。
 
 ## 主要步骤
@@ -43,6 +45,7 @@ skip-name-resolve
 
 [mysql]
 ```
+
 slave:
 ```
 [mysqld]
@@ -52,6 +55,7 @@ skip-name-resolve
 [mysql]
 
 ```
+
 slave2:
 ```
 [mysqld]
@@ -152,7 +156,7 @@ insert into t1(content) values('1'),('2'),('3'),('4');
 ## 结果
 登录slave和slave2分别查看可以看到，数据已经同步，其中slave2是延时同步，也已经生效。
 ![binlog](/images/mysql8-gtic-replication/slave1_demo.png)
-![binlog](/images/mysql8-gtic-replication/slave2_demo.png)
+![binlog](/images/mysql8-gtic-replication/slave1_demo.png)
 
 ## 最后
 master正常写入数据
