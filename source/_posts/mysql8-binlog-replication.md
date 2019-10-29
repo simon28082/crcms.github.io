@@ -36,10 +36,10 @@ show variables like '%log_bin%'
 ```
 [mysqld]
 log-bin=/var/lib/mysql/bin_logs/master
-expire-logs-days=7
-max-binlog-size=1GB
+expire_logs_days=7
+max_binlog_size=1GB
 
-server-id=1
+server_id=1
 ```
 > 其它更多`binlog`配置请参考官方文档
 
@@ -99,11 +99,29 @@ change master to master_host='172.22.0.2',master_user='binlog_user',master_passw
 start slave
 ```
 
-## 主从示例
-待续。。。。
-
 ## 主主复制
-待续。。。。
+![binlog](/images/mysql8-replication/master_master.png)
+所谓主主复制，其实就是一台mysql既是主又是从，两台互为复制
+需要新建一台mysql和从库开启方式一致，原主服务器再加上
+```mysql
+CHANGE MASTER TO MASTER HOST, MASTER USER,MASTER PASSWORD,MASTER LOG FILE,MASTER LOG POS
+start slave
+```
 
 ## 多源复制
-待续。。。。
+![binlog](/images/mysql8-replication/master_master_slave.png)
+多游、复制可用于将多台服务器备份到单台服务器，合并表分片，以及将多台服务器中的数据整合到单台服务器。多源复制在应用事务时不会执行任何冲突检测或解析，并且如果需要的话，这些任务将留给应用程序来处理。在多源复制拓扑中，从库为每个主库创建一个复制通道，以便从中接收事务。
+
+在slave上修改配置文件：
+```mysql
+master_info_repository=TABLE
+relay_log_info_repository=TABLE
+```
+如果此时从库还在同步，也需要修改
+```mysql
+stop slave; 
+SET GLOBAL master_info_repository='TABLE';
+SET GLOBAL relay_log_info_repository='TABLE';
+```
+重启slave即可
+> 注意：多源复制下，多主对一从，需要注意复制数据冲突问题
