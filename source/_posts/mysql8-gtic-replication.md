@@ -25,7 +25,6 @@ GTID = source_id:transaction_id
 source_id是主库的标识。通常，服务器的server_uuid选项就代表此标识。transaction_id 是一个序列号，由在该服务器上提交事务的顺序决定。
 
 ## 主要步骤
-不管是主主，还是多源，其基础配置都和主从差不多，所以就列出主从的基本步骤：
 
 1. master 开启`binlog`
 2. 创建复制用户
