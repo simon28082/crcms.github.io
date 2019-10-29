@@ -20,7 +20,7 @@ GTID用一对坐标表示，用冒号（：）分隔：
 
 ```
 GTID = source_id:transaction_id
-``` 
+```
 
 source_id是主库的标识。通常，服务器的server_uuid选项就代表此标识。transaction_id 是一个序列号，由在该服务器上提交事务的顺序决定。
 
