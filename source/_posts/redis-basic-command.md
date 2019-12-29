@@ -42,6 +42,7 @@ tags:
 #### Get
 - `LRANGE key start stop` 获取指定范围的list, `lrange key 0 -1` 标识获取整个list
 - `LINDEX key index` 获取指定索引处的元素，不存在返回nil
+- `LLEN key` 获取列表长度
 
 #### Delete
 - `LPOP key` 左侧弹出，返回总列表个数，当list不存在时返回nil
@@ -66,6 +67,7 @@ tags:
 - `HGETALL key` 返回当前Key的所有值，当HASH巨大的时候不适合使用此函数
 - `HMGET key field ...` 返回当前key指定的field值
 - `HSCAN key cursor [MATCH field] [COUNT number]` 通过指针移动来获取MATCH匹配的值，COUNT代表的是返回的元素个数，但即使设置了count也并不一定代表就返回count个元素，因此不可作为分页式数据
+- `HLEN key` 获取Hash长度
 
 #### Delete
 - `HDEL key field ...` 删除一个或多个field，当key全部删除后，key会被自动清除
@@ -77,7 +79,6 @@ tags:
 
 #### Get
 - `SISMEMBER key member` 判断是否存在于集合，0表示不存在1存在
-- `SCARD key` 获取集合元素数量
 - `SMEMBERS key` 返回集合所有元素
 - `SSCAN key cursor [MATCH member] [COUNT number]` 通过指针移动来获取MATCH匹配的值，COUNT代表的是返回的元素个数，但即使设置了count也并不一定代表就返回count个元素，因此不可作为分页式数据
 - `SRANDMEMBER key count` 随机返回指定count元素
@@ -87,6 +88,7 @@ tags:
 - `SINTERSTORE storeKey key key ...` 交集，并存储至storeKey中
 - `SDIFF` 集合差集，返回合差集值
 - `SDIFFSTORE diffKey key key ...` 差集，并存储至diffKey中
+- `SCARD key` 获取集合元素数量
 
 #### Delete
 - `DEL key` 删除集合
