@@ -37,9 +37,9 @@ git_commit:
   client_id: e1cbbb8b52f5de53cbce
   client_secret: 494fa22a9ca1b8d0a148ec8410e33eb1b08922bb
   repo: crcms.github.io
-  owner: simon
+  owner: crcms
   admin:
-    - simon
+    - crcms
   per_page: 10
 
 
