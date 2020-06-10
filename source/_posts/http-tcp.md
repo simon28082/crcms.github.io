@@ -19,6 +19,7 @@ post /api/v1/register http/1.1
 Host: firmeve.com
 Connection: keep-alive
 Content-Type: application/json
+
 {"name":"simon","mobile":""}
 ```
 
