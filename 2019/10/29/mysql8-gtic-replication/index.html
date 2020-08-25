@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>Mysql8下GTID复制 | CRCMS</title>
+    <meta name="author" content="simon">
+    <meta name="keywords" content>
+    <meta name="description" content="简述之前介绍了通过binlog Pos来进行主从复制，基于复制点(pos)来进行复制，在迁移或因故障未能及时同步等问题下必须重新定位复制点，非常麻烦，特别是对于多台mysql而言。而GTID就可以很好的解决这个问题。GTID自动检测二进制日志的位置。什么是GTID?全局事务标识符（Global Transaction Identifier, GTID ）是在程序中创建的唯一标识符，并与主库上提交的每个事务相关联。此标识符是唯一的，不仅在其主库上，在给定的复制设置中的所有数据库上，它都是唯...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="CRCMS" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.png">
+    
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'icomoon';
+        src: url("/fonts/icomoon.eot?q628ml");
+        src: url("/fonts/icomoon.eot?q628ml#iefix") format('embedded-opentype'),
+             url("/fonts/icomoon.ttf?q628ml") format('truetype'),
+             url("/fonts/icomoon.woff?q628ml") format('woff'),
+             url("/fonts/icomoon.svg?q628ml#icomoon") format('svg');
+        font-weight: normal;
+        font-style: normal;
+    }
+    </style>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!--[if lt IE 9]>
+    <style type="text/css">
+    .nav-inner {top:0;}
+    .author-meta {position:static;top:0;}
+    .search-form {height:36px;}
+    </style>
+    <script type="text/javascript" src="https://unpkg.com/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <main class="app">
+        <header id="header" class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">CRCMS</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+            <a class="nav-item" href="/reward">
+                <span class="nav-text">支持</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.crcms.cn"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简述"><span class="toc-number">1.</span> <span class="toc-text">简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是GTID"><span class="toc-number">2.</span> <span class="toc-text">什么是GTID?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#主要步骤"><span class="toc-number">3.</span> <span class="toc-text">主要步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#完整示例"><span class="toc-number">4.</span> <span class="toc-text">完整示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查看slave和master状态"><span class="toc-number">5.</span> <span class="toc-text">查看slave和master状态</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试"><span class="toc-number">6.</span> <span class="toc-text">测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结果"><span class="toc-number">7.</span> <span class="toc-text">结果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#最后"><span class="toc-number">8.</span> <span class="toc-text">最后</span></a></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content">
+            <div id="wrapper" class="wrapper" style="max-width: 800px">
+                <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            Mysql8下GTID复制
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.crcms.cn/2019/10/29/mysql8-gtic-replication/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2019-10-29T06:39:31.000Z" itemprop="datePublished">2019-10-29</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/GTID复制/">GTID复制</a>, <a class="article-tag-link" href="/tags/mysql/">mysql</a>, <a class="article-tag-link" href="/tags/replication/">replication</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h2 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h2><p>之前介绍了通过<code>binlog Pos</code>来进行主从复制，基于复制点(pos)来进行复制，在迁移或因故障未能及时同步<br>等问题下必须重新定位复制点，非常麻烦，特别是对于多台mysql而言。而GTID就可以很好的解决这个问题。<br>GTID自动检测二进制日志的位置。</p>
+<h2 id="什么是GTID"><a href="#什么是GTID" class="headerlink" title="什么是GTID?"></a>什么是GTID?</h2><p>全局事务标识符（Global Transaction Identifier, GTID ）是在程序中创建的唯一标识符，并与主库上提交的每个事务相关联。<br>此标识符是唯一的，不仅在其主库上，在给定的复制设置中的所有数据库上，它都是唯一的。<br>所有事务和所有GTID之间都是一对一的映射关系。<br>GTID用一对坐标表示，用冒号（：）分隔：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GTID = source_id:transaction_id</span><br></pre></td></tr></table></figure>
+
+<p>source_id是主库的标识。通常，服务器的server_uuid选项就代表此标识。transaction_id 是一个序列号，由在该服务器上提交事务的顺序决定。</p>
+<h2 id="主要步骤"><a href="#主要步骤" class="headerlink" title="主要步骤"></a>主要步骤</h2><ol>
+<li>master 开启<code>binlog</code></li>
+<li>创建复制用户</li>
+<li>设置 master 以及 slave 惟一的<code>server_id</code>,<code>gtid_mode</code>,<code>enforce_gtid_consistency</code></li>
+<li>在 slave 上执行<code>change master to MASTER_AUTO_POSITION=1</code></li>
+<li>执行<code>start slave</code></li>
+</ol>
+<h2 id="完整示例"><a href="#完整示例" class="headerlink" title="完整示例"></a>完整示例</h2><p>开启3台mysql，分别命令为master,slave,slave2，初始配置如下：<br>其中slave2我们使用延时同步，主要是为了更好的灾备。</p>
+<p>master:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line">skip-host-cache</span><br><span class="line">skip-name-resolve</span><br><span class="line"></span><br><span class="line">[mysql]</span><br></pre></td></tr></table></figure>
+
+<p>slave:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line">skip-host-cache</span><br><span class="line">skip-name-resolve</span><br><span class="line"></span><br><span class="line">[mysql]</span><br></pre></td></tr></table></figure>
+
+<p>slave2:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line">skip-host-cache</span><br><span class="line">skip-name-resolve</span><br><span class="line"></span><br><span class="line">[mysql]</span><br></pre></td></tr></table></figure>
+
+<p>运行Mysql</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -it -v /tmp/mysql/master/conf:/etc/mysql/conf.d -v /tmp/mysql/slave/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root --name master mysql</span><br><span class="line">docker run -d -it -v /tmp/mysql/slave/conf:/etc/mysql/conf.d -v /tmp/mysql/master/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root --name slave mysql</span><br><span class="line">docker run -d -it -v /tmp/mysql/slave2/conf:/etc/mysql/conf.d -v /tmp/mysql/slave2/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root --name slave2 mysql</span><br><span class="line"><span class="comment"># 创建桥接网络</span></span><br><span class="line">docker network create mysql</span><br><span class="line">docker network connect --<span class="built_in">alias</span> master mysql master</span><br><span class="line">docker network connect --<span class="built_in">alias</span> slave mysql slave</span><br><span class="line">docker network connect --<span class="built_in">alias</span> slave2 mysql slave2</span><br></pre></td></tr></table></figure>
+
+<p>docker ps查看保证mysql都已经启动，然后增加binlog和gtid的配置</p>
+<p>master:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">log_bin=/var/lib/mysql/bin_logs/master</span><br><span class="line">server_id=100</span><br><span class="line">gtid_mode=on</span><br><span class="line">enforce_gtid_consistency=on</span><br></pre></td></tr></table></figure>
+
+<p>slave:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">log_bin=/var/lib/mysql/bin_logs/slave</span><br><span class="line">server_id=101</span><br><span class="line">gtid_mode=on</span><br><span class="line">enforce_gtid_consistency=on</span><br></pre></td></tr></table></figure>
+
+<p>slave2:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">log_bin=/var/lib/mysql/bin_logs/slave</span><br><span class="line">server_id=103</span><br><span class="line">gtid_mode=on</span><br><span class="line">enforce_gtid_consistency=on</span><br></pre></td></tr></table></figure>
+
+<p>在master上增加复制帐户</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create user &apos;binlog_user&apos;@&apos;%&apos; identified with mysql_native_password by &apos;binlog_password&apos;;</span><br><span class="line">grant replication slave on *.* to &apos;binlog_user&apos;@&apos;%&apos;;</span><br><span class="line">flush privileges;</span><br></pre></td></tr></table></figure>
+
+<p>重启master和slave</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker restart master</span><br><span class="line">docker restart slave</span><br><span class="line">docker restart slave2</span><br></pre></td></tr></table></figure>
+
+<p>在slave中增加<code>change master to</code> 并 <code>start slave</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">change master to master_host=<span class="string">'master'</span>,master_user=<span class="string">'binlog_user'</span>,master_password=<span class="string">'binlog_password'</span>,master_port=3306,master_auto_position=1;</span><br><span class="line">start slave;</span><br></pre></td></tr></table></figure>
+
+<p>在slave中增加<code>change master to</code> 并 <code>start slave</code>并开启延时</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">change master to master_host=<span class="string">'master'</span>,master_user=<span class="string">'binlog_user'</span>,master_password=<span class="string">'binlog_password'</span>,master_port=3306,master_auto_position=1,master_delay=10;</span><br><span class="line">start slave;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里注意，master_delay=10表示开启了10秒延时</p>
+</blockquote>
+<h2 id="查看slave和master状态"><a href="#查看slave和master状态" class="headerlink" title="查看slave和master状态"></a>查看slave和master状态</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show master status\G;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/mysql8-gtic-replication/master_status.png" alt="binlog"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show slave status\G;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到slave的Slave_IO_State: Waiting for master to send event<br><img src="/images/mysql8-gtic-replication/slave_status.png" alt="binlog"></p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>在主库中创建数据库并写入数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">create database tv default charset utf8mb4 collate utf8mb4_unicode_ci;</span><br><span class="line">create table t1 (</span><br><span class="line">  id int(10) unsigned primary key auto_increment,</span><br><span class="line">  content text default null</span><br><span class="line">);</span><br><span class="line">#写入数据</span><br><span class="line">use tv;</span><br><span class="line">insert into t1(content) values(&apos;1&apos;),(&apos;2&apos;),(&apos;3&apos;),(&apos;4&apos;);</span><br></pre></td></tr></table></figure>
+
+<h2 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h2><p>登录slave和slave2分别查看可以看到，数据已经同步，其中slave2是延时同步，也已经生效。<br><img src="/images/mysql8-gtic-replication/slave1_demo.png" alt="binlog"><br><img src="/images/mysql8-gtic-replication/slave1_demo.png" alt="binlog"></p>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>master正常写入数据<br>重启slave和slave2随后也是可以正常同步的</p>
+<blockquote>
+<p>如果希望从库重启后不进行自动同步，需要在配置中增加<code>skip_slave_start</code><br>还要注意的是，这里的示例是全部新库，如果原来是使用pos位置同步这里并不完全适用<br>需要先设置master为read only，等待所有从库全部同步完成才可以进行切换</p>
+</blockquote>
+
+        
+    </section>
+</article>
+
+
+
+<a id="pagenext" href="/2019/10/14/mysql8-binlog-replication/" class="article-next" title="Mysql8下主从复制、主主复制、多源复制"><i class="icon-arrow-right"></i></a>
+
+
+<a id="pageprev" href="/2019/12/17/golang-rabbitmq-demo/" class="article-prev" title="Golang RabbitMQ demo"><i class="icon-arrow-left"></i></a>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "e1cbbb8b52f5de53cbce",
+        clientSecret: "494fa22a9ca1b8d0a148ec8410e33eb1b08922bb",
+        repo: "crcms.github.io",
+        owner: "crcms",
+        admin: ["crcms"],
+        id: "2019/10/29/mysql8-gtic-replication",
+        distractionFreeMode: true,
+        title: "Mysql8下GTID复制",
+        body: "http://blog.crcms.cn/2019/10/29/mysql8-gtic-replication/",
+        labels: ["mysql","replication","GTID复制"]
+    }).render('comments');
+    </script>
+</div>
+
+
+            </div>
+        </div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?2c09de12c175e88fd5cb35771db9e691";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
+    
+
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>记一次 Composer 0.0 版本控制的坑 | CRCMS</title>
+    <meta name="author" content="simon">
+    <meta name="keywords" content>
+    <meta name="description" content="简述 ^ 和 ~^：控制最高版本，如^1.2.3 =&amp;gt; &amp;gt;=1.2.3,&amp;lt;2.0~：控制最低版本，但允许版本号的最后一位数字上升，如~1.2.3 =&amp;gt; &amp;gt;=1.2.3,&amp;lt;1.3同为二位号的版本时，~和^表示相同，如^1.2或~1.2 =&amp;gt; &amp;gt;=1.2,&amp;lt;2.0关于0.0的起始版本号当版本号为0的时候，如果开启第三位版本号，则composer则认为固定版本如:~0.0.3或^0.0.3，则composer只能安装0.0.3无法...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="CRCMS" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.png">
+    
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'icomoon';
+        src: url("/fonts/icomoon.eot?q628ml");
+        src: url("/fonts/icomoon.eot?q628ml#iefix") format('embedded-opentype'),
+             url("/fonts/icomoon.ttf?q628ml") format('truetype'),
+             url("/fonts/icomoon.woff?q628ml") format('woff'),
+             url("/fonts/icomoon.svg?q628ml#icomoon") format('svg');
+        font-weight: normal;
+        font-style: normal;
+    }
+    </style>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!--[if lt IE 9]>
+    <style type="text/css">
+    .nav-inner {top:0;}
+    .author-meta {position:static;top:0;}
+    .search-form {height:36px;}
+    </style>
+    <script type="text/javascript" src="https://unpkg.com/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <main class="app">
+        <header id="header" class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">CRCMS</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+            <a class="nav-item" href="/reward">
+                <span class="nav-text">支持</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.crcms.cn"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简述-和"><span class="toc-number">1.</span> <span class="toc-text">简述 ^ 和 ~</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#关于0-0的起始版本号"><span class="toc-number">2.</span> <span class="toc-text">关于0.0的起始版本号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其它"><span class="toc-number">3.</span> <span class="toc-text">其它</span></a></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content">
+            <div id="wrapper" class="wrapper" style="max-width: 800px">
+                <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            记一次 Composer 0.0 版本控制的坑
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.crcms.cn/2019/04/01/composer-version/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2019-04-01T01:19:21.000Z" itemprop="datePublished">2019-04-01</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/composer/">composer</a>, <a class="article-tag-link" href="/tags/php/">php</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h2 id="简述-和"><a href="#简述-和" class="headerlink" title="简述 ^ 和 ~"></a>简述 <code>^</code> 和 <code>~</code></h2><ul>
+<li><code>^</code>：控制最高版本，如<code>^1.2.3</code> =&gt; <code>&gt;=1.2.3,&lt;2.0</code></li>
+<li><code>~</code>：控制最低版本，但允许版本号的最后一位数字上升，如<code>~1.2.3</code> =&gt; <code>&gt;=1.2.3,&lt;1.3</code></li>
+<li>同为二位号的版本时，<code>~</code>和<code>^</code>表示相同，如<code>^1.2</code>或<code>~1.2</code> =&gt; <code>&gt;=1.2,&lt;2.0</code></li>
+</ul>
+<h2 id="关于0-0的起始版本号"><a href="#关于0-0的起始版本号" class="headerlink" title="关于0.0的起始版本号"></a>关于0.0的起始版本号</h2><p>当版本号为<code>0</code>的时候，如果开启第三位版本号，则composer则认为固定版本</p>
+<p>如:<code>~0.0.3</code>或<code>^0.0.3</code>，则composer只能安装<code>0.0.3</code>无法扩展升级</p>
+<p>所以必须使用<code>^0.0</code>或者<code>~0.0</code></p>
+<h2 id="其它"><a href="#其它" class="headerlink" title="其它"></a>其它</h2><p>关于composer的详细版本控制请参考官网</p>
+
+        
+    </section>
+</article>
+
+
+
+<a id="pagenext" href="/2019/03/30/hexo/" class="article-next" title="放弃wordpress，集成hexo"><i class="icon-arrow-right"></i></a>
+
+
+<a id="pageprev" href="/2019/04/07/hexo-travis/" class="article-prev" title="hexo 集成 travis ci 自动部署"><i class="icon-arrow-left"></i></a>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "e1cbbb8b52f5de53cbce",
+        clientSecret: "494fa22a9ca1b8d0a148ec8410e33eb1b08922bb",
+        repo: "crcms.github.io",
+        owner: "crcms",
+        admin: ["crcms"],
+        id: "2019/04/01/composer-version",
+        distractionFreeMode: true,
+        title: "记一次 Composer 0.0 版本控制的坑",
+        body: "http://blog.crcms.cn/2019/04/01/composer-version/",
+        labels: ["php","composer"]
+    }).render('comments');
+    </script>
+</div>
+
+
+            </div>
+        </div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?2c09de12c175e88fd5cb35771db9e691";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
+    
+
+</body>
+</html>

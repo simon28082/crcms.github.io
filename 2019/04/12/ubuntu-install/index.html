@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>ubuntu18.04 安装 | CRCMS</title>
+    <meta name="author" content="simon">
+    <meta name="keywords" content>
+    <meta name="description" content="简述尝试了windows,macos,ubuntu，最后还是觉得ubuntu好用。可能是屌丝本质或者我没有领悟其精髓，macos在我看来并不好用，但界面确实还可以。为了方便我折合了大部分于shell中，可以直接运行shell安装 https://github.com/crcms/system-initialization来几张图看看效果工具基础功能包1234# apt updatesudo apt-get updatesudo apt-get install -y vim unzip...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="CRCMS" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.png">
+    
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'icomoon';
+        src: url("/fonts/icomoon.eot?q628ml");
+        src: url("/fonts/icomoon.eot?q628ml#iefix") format('embedded-opentype'),
+             url("/fonts/icomoon.ttf?q628ml") format('truetype'),
+             url("/fonts/icomoon.woff?q628ml") format('woff'),
+             url("/fonts/icomoon.svg?q628ml#icomoon") format('svg');
+        font-weight: normal;
+        font-style: normal;
+    }
+    </style>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!--[if lt IE 9]>
+    <style type="text/css">
+    .nav-inner {top:0;}
+    .author-meta {position:static;top:0;}
+    .search-form {height:36px;}
+    </style>
+    <script type="text/javascript" src="https://unpkg.com/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <main class="app">
+        <header id="header" class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">CRCMS</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+            <a class="nav-item" href="/reward">
+                <span class="nav-text">支持</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.crcms.cn"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简述"><span class="toc-number">1.</span> <span class="toc-text">简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#工具"><span class="toc-number">2.</span> <span class="toc-text">工具</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基础功能包"><span class="toc-number">2.1.</span> <span class="toc-text">基础功能包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#最主要的是什么，当然是terminal，推荐deepin-terminal个人感觉非常好用"><span class="toc-number">2.2.</span> <span class="toc-text">最主要的是什么，当然是terminal，推荐deepin terminal个人感觉非常好用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#输入法"><span class="toc-number">2.3.</span> <span class="toc-text">输入法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常用功能包"><span class="toc-number">2.4.</span> <span class="toc-text">常用功能包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#oh-my-zsh"><span class="toc-number">2.5.</span> <span class="toc-text">oh my zsh</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#增加代码提示插件"><span class="toc-number">2.5.1.</span> <span class="toc-text">增加代码提示插件</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#修改皮肤，增加Plugin"><span class="toc-number">2.5.2.</span> <span class="toc-text">修改皮肤，增加Plugin</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Socks代理"><span class="toc-number">2.6.</span> <span class="toc-text">Socks代理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#shadowsocks-安装"><span class="toc-number">2.6.1.</span> <span class="toc-text">shadowsocks 安装</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#命令行开启代理"><span class="toc-number">2.6.2.</span> <span class="toc-text">命令行开启代理</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#开发工具包"><span class="toc-number">2.7.</span> <span class="toc-text">开发工具包</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#美化，强制macos"><span class="toc-number">3.</span> <span class="toc-text">美化，强制macos</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#主题安装"><span class="toc-number">3.1.</span> <span class="toc-text">主题安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#应用主题"><span class="toc-number">3.2.</span> <span class="toc-text">应用主题</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常见问题"><span class="toc-number">4.</span> <span class="toc-text">常见问题</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1、开启TopIcons-Plus，增加系统shell托盘"><span class="toc-number">4.0.1.</span> <span class="toc-text">1、开启TopIcons Plus，增加系统shell托盘</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2、如何打开tweak"><span class="toc-number">4.0.2.</span> <span class="toc-text">2、如何打开tweak</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3、如何重启Gnome"><span class="toc-number">4.0.3.</span> <span class="toc-text">3、如何重启Gnome</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4、使用-Dash-to-dock-插件时同时出现两个dock的问题"><span class="toc-number">4.0.4.</span> <span class="toc-text">4、使用[Dash to dock]插件时同时出现两个dock的问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5、tweak无法选择shell主题"><span class="toc-number">4.0.5.</span> <span class="toc-text">5、tweak无法选择shell主题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6、中文环境下将Home目录下的文件夹切换为英文名"><span class="toc-number">4.0.6.</span> <span class="toc-text">6、中文环境下将Home目录下的文件夹切换为英文名</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7、18-04开机启动特别慢的问题"><span class="toc-number">4.0.7.</span> <span class="toc-text">7、18.04开机启动特别慢的问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#网易云音乐1-1-0后不能打开的解决方法"><span class="toc-number">4.0.8.</span> <span class="toc-text">网易云音乐1.1.0后不能打开的解决方法</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content">
+            <div id="wrapper" class="wrapper" style="max-width: 800px">
+                <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            ubuntu18.04 安装
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.crcms.cn/2019/04/12/ubuntu-install/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2019-04-12T19:25:31.000Z" itemprop="datePublished">2019-04-13</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/ubuntu/">ubuntu</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h2 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h2><p>尝试了<code>windows</code>,<code>macos</code>,<code>ubuntu</code>，最后还是觉得<code>ubuntu</code>好用。<br>可能是屌丝本质或者我没有领悟其精髓，<code>macos</code>在我看来并不好用，但界面确实还可以。<br>为了方便我折合了大部分于shell中，可以直接运行shell安装 <a href="https://github.com/crcms/system-initialization" target="_blank" rel="noopener">https://github.com/crcms/system-initialization</a></p>
+<p>来几张图看看效果</p>
+<p><img src="/images/ubuntu-install/1.png" alt="ubuntu桌面1"><br><img src="/images/ubuntu-install/2.png" alt="ubuntu桌面2"></p>
+<h2 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h2><h3 id="基础功能包"><a href="#基础功能包" class="headerlink" title="基础功能包"></a>基础功能包</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># apt update</span></span><br><span class="line">sudo apt-get update</span><br><span class="line"></span><br><span class="line">sudo apt-get install -y vim unzip git</span><br></pre></td></tr></table></figure>
+
+<h3 id="最主要的是什么，当然是terminal，推荐deepin-terminal个人感觉非常好用"><a href="#最主要的是什么，当然是terminal，推荐deepin-terminal个人感觉非常好用" class="headerlink" title="最主要的是什么，当然是terminal，推荐deepin terminal个人感觉非常好用"></a>最主要的是什么，当然是<code>terminal</code>，推荐<code>deepin terminal</code>个人感觉非常好用</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install zssh</span><br><span class="line">sudo apt-get install deepin-terminal</span><br></pre></td></tr></table></figure>
+
+<h3 id="输入法"><a href="#输入法" class="headerlink" title="输入法"></a>输入法</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 搜索拼音</span></span><br><span class="line">wget http://cdn2.ime.sogou.com/dl/index/1524572264/sogoupinyin_2.2.0.0108_amd64.deb -O suogoupingyin.deb</span><br><span class="line">sudo dpkg -i suogoupingyin.deb</span><br><span class="line">sudo apt-get install -f</span><br><span class="line">sudo dpkg -i suogoupingyin.deb</span><br><span class="line"><span class="comment"># 五笔</span></span><br><span class="line">sudo apt-get install fcitx-table-wubi</span><br></pre></td></tr></table></figure>
+
+<h3 id="常用功能包"><a href="#常用功能包" class="headerlink" title="常用功能包"></a>常用功能包</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://gitee.com/wszqkzqk/deepin-wine-for-ubuntu.git ~/deepin-wine-for-ubuntu</span><br><span class="line">sudo bash ~/deepin-wine-for-ubuntu/install.sh</span><br><span class="line"><span class="comment"># qq</span></span><br><span class="line">wget http://mirrors.aliyun.com/deepin/pool/non-free/d/deepin.com.qq.im/deepin.com.qq.im_8.9.19983deepin23_i386.deb -O qq.deb</span><br><span class="line">sudo dpkg -i qq.deb</span><br><span class="line"><span class="comment"># 徾信</span></span><br><span class="line">wget http://mirrors.aliyun.com/deepin/pool/non-free/d/deepin.com.wechat/deepin.com.wechat_2.6.2.31deepin0_i386.deb -O weichat.deb</span><br><span class="line">sudo dpkg -i weichat.deb</span><br><span class="line"><span class="comment"># 百度网盘</span></span><br><span class="line">wget http://mirrors.aliyun.com/deepin/pool/non-free/d/deepin.com.baidu.pan/deepin.com.baidu.pan_5.7.3deepin0_i386.deb -O pan.deb</span><br><span class="line">sudo dpkg -i pan.deb</span><br><span class="line"><span class="comment"># 迅雷</span></span><br><span class="line">wget http://mirrors.aliyun.com/deepin/pool/non-free/d/deepin.com.thunderspeed/deepin.com.thunderspeed_7.10.35.366deepin18_i386.deb -O xunlei.deb</span><br><span class="line">sudo dpkg -i xunlei.deb</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>这里非常感谢开源作者 <a href="https://github.com/wszqkzqk/deepin-wine-ubuntu" target="_blank" rel="noopener">https://github.com/wszqkzqk/deepin-wine-ubuntu</a></p>
+</blockquote>
+<h3 id="oh-my-zsh"><a href="#oh-my-zsh" class="headerlink" title="oh my zsh"></a>oh my zsh</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install -y curl zsh</span><br><span class="line">zsh --version</span><br><span class="line">chsh -s $(<span class="built_in">which</span> zsh)</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$SHELL</span></span><br><span class="line"><span class="built_in">cd</span> ~</span><br><span class="line">sudo sh -c <span class="string">"<span class="variable">$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)</span>"</span></span><br><span class="line"><span class="built_in">source</span> ~/.zshrc</span><br></pre></td></tr></table></figure>
+
+<h4 id="增加代码提示插件"><a href="#增加代码提示插件" class="headerlink" title="增加代码提示插件"></a>增加代码提示插件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/zsh-users/zsh-autosuggestions <span class="variable">$&#123;ZSH_CUSTOM:-~/.oh-my-zsh/custom&#125;</span>/plugins/zsh-autosuggestions</span><br></pre></td></tr></table></figure>
+
+<h4 id="修改皮肤，增加Plugin"><a href="#修改皮肤，增加Plugin" class="headerlink" title="修改皮肤，增加Plugin"></a>修改皮肤，增加Plugin</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">vim ~/.zshrc</span><br><span class="line"><span class="comment"># ZSH_THEME="af-magic" (个人比较喜欢这一款)</span></span><br><span class="line"><span class="comment"># plugins=(git zsh-autosuggestions)</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Socks代理"><a href="#Socks代理" class="headerlink" title="Socks代理"></a>Socks代理</h3><h4 id="shadowsocks-安装"><a href="#shadowsocks-安装" class="headerlink" title="shadowsocks 安装"></a>shadowsocks 安装</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">shadowsocks_path=/opt/shadowsocks</span><br><span class="line"><span class="comment"># 直接是本地已经包了</span></span><br><span class="line">sudo cp -r ./tools/shadowsocks /opt</span><br><span class="line">sudo chmod +x <span class="variable">$&#123;shadowsocks_path&#125;</span>/Shadowsocks-Qt5-3.0.1-x86_64.AppImage</span><br><span class="line">sudo cp <span class="variable">$&#123;shadowsocks_path&#125;</span>/shadowsocks.desktop /usr/share/applications</span><br><span class="line">sudo apt-get install -y python-pip</span><br><span class="line">sudo pip install -U genpac</span><br><span class="line">genpac --proxy=<span class="string">"SOCKS5 127.0.0.1:1080"</span> --gfwlist-proxy=<span class="string">"SOCKS5 127.0.0.1:1080"</span> -o autoproxy.pac --gfwlist-url=<span class="string">"https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt"</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>shadowsocks的下载地址 <a href="https://github.com/shadowsocks/shadowsocks-qt5" target="_blank" rel="noopener">https://github.com/shadowsocks/shadowsocks-qt5</a></p>
+</blockquote>
+<h4 id="命令行开启代理"><a href="#命令行开启代理" class="headerlink" title="命令行开启代理"></a>命令行开启代理</h4><p>在<code>bashrc</code>或<code>zshrc</code>中加入两函数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># proxy</span></span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">proxy_off</span></span>() &#123;</span><br><span class="line">     <span class="built_in">unset</span> all_proxy</span><br><span class="line">     <span class="built_in">echo</span> -e <span class="string">"已关闭代理"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">proxy_on</span></span>() &#123;</span><br><span class="line">     <span class="built_in">export</span> no_proxy=<span class="string">"localhost,127.0.0.1,localaddress,.localdomain.com,.test"</span></span><br><span class="line">     <span class="built_in">export</span> all_proxy=socks5://127.0.0.1:1080</span><br><span class="line">     <span class="built_in">echo</span> -e <span class="string">"已开启代理"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>需要时在命令行中执行<code>proxy_off</code>或<code>proxy_on</code>即可</p>
+</blockquote>
+<h3 id="开发工具包"><a href="#开发工具包" class="headerlink" title="开发工具包"></a>开发工具包</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># gitkraken</span></span><br><span class="line">wget https://release.axocdn.com/linux/gitkraken-amd64.deb -O gitkraken.deb</span><br><span class="line">sudo dpkg -i gitkraken.deb</span><br><span class="line"></span><br><span class="line"><span class="comment"># PhpStorm</span></span><br><span class="line">wget https://download.jetbrains.8686c.com/webide/PhpStorm-2018.3.5.tar.gz -O PhpStorm.tar.gz</span><br><span class="line">sudo tar xfz PhpStorm.tar.gz -C /opt/</span><br><span class="line">sudo chmod +x Php*/bin/phpstorm.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># Goland</span></span><br><span class="line">wget https://download.jetbrains.8686c.com/go/goland-2018.3.5.tar.gz -O goland.tar.gz</span><br><span class="line">sudo tar xfz goland.tar.gz -C /opt/</span><br><span class="line">sudo chmod +x Go*/bin/goland.sh</span><br></pre></td></tr></table></figure>
+
+<h2 id="美化，强制macos"><a href="#美化，强制macos" class="headerlink" title="美化，强制macos"></a>美化，强制<code>macos</code></h2><p><img src="/images/ubuntu-install/3.png" alt="tweak"><br><img src="/images/ubuntu-install/4.png" alt="tweak"></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install -y gnome-tweak-tool gnome-shell-extensions gnome-shell-extension-dashtodock gnome-shell-extension-top-icons-plus chrome-gnome-shell</span><br></pre></td></tr></table></figure>
+
+<h3 id="主题安装"><a href="#主题安装" class="headerlink" title="主题安装"></a>主题安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安装GTK3主题或 McHigh Sierra </span></span><br><span class="line"><span class="comment"># https://github.com/vinceliuice/Sierra-gtk-theme/raw/releases/Sierra-light.tar.xz</span></span><br><span class="line"><span class="comment"># https://github.com/vinceliuice/Sierra-gtk-theme/raw/releases/Sierra-dark.tar.xz</span></span><br><span class="line">wget https://dl.opendesktop.org/api/files/download/id/1523902544/s/ede5bc5c844b290e6e136ca68ae22cb2b72575769e1e9e6488acbfb3979c31b92fe01e8403fafe485a6c4c6f1b4a2fd1cd81806b455d6ffb613aac886ab9755d/t/1553693498/u//X-Arc-Collection-v1.4.9.zip -O X-Arc-Collection.zip</span><br><span class="line">unzip -d /usr/share/themes X-Arc-Collection.zip </span><br><span class="line"></span><br><span class="line"><span class="comment"># 下载Mac图标主题 la-capitaine-icon-theme</span></span><br><span class="line">wget https://github.com/keeferrourke/la-capitaine-icon-theme/archive/v0.6.1.tar.gz -O la-capitaine-icon.tra.gz</span><br><span class="line">tar zxvf la-capitaine-icon.tra.gz -C /usr/share/icons</span><br></pre></td></tr></table></figure>
+
+<h3 id="应用主题"><a href="#应用主题" class="headerlink" title="应用主题"></a>应用主题</h3><ul>
+<li><code>tweak-&gt;外观-&gt;应用主题或Shell</code></li>
+<li>重启<code>Gnome</code></li>
+</ul>
+<h2 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h2><h4 id="1、开启TopIcons-Plus，增加系统shell托盘"><a href="#1、开启TopIcons-Plus，增加系统shell托盘" class="headerlink" title="1、开启TopIcons Plus，增加系统shell托盘"></a>1、开启<code>TopIcons Plus</code>，增加系统<code>shell</code>托盘</h4><ul>
+<li><p>下载<code>top-icons</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 已安装跳过</span></span><br><span class="line">sudo apt-get install -y gnome-shell-extension-top-icons-plus</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>tweak-&gt;扩展-&gt;开启Topicons plus</code></p>
+</li>
+</ul>
+<h4 id="2、如何打开tweak"><a href="#2、如何打开tweak" class="headerlink" title="2、如何打开tweak"></a>2、如何打开<code>tweak</code></h4><ul>
+<li>在应用程序中输入<code>tweak</code></li>
+</ul>
+<h4 id="3、如何重启Gnome"><a href="#3、如何重启Gnome" class="headerlink" title="3、如何重启Gnome"></a>3、如何重启<code>Gnome</code></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Alt + F2] -&gt; [输入 r] -&gt; [点击 Enter]</span><br></pre></td></tr></table></figure>
+
+<h4 id="4、使用-Dash-to-dock-插件时同时出现两个dock的问题"><a href="#4、使用-Dash-to-dock-插件时同时出现两个dock的问题" class="headerlink" title="4、使用[Dash to dock]插件时同时出现两个dock的问题"></a>4、使用<code>[Dash to dock]</code>插件时同时出现两个dock的问题</h4><p>在<code>tweak</code>设置里关闭<code>[Dash to dock]</code>，关闭后 <code>[Dash to dock]</code> 仍然正常工作，但是不会同时出现两个<code>dock</code>栏。</p>
+<h4 id="5、tweak无法选择shell主题"><a href="#5、tweak无法选择shell主题" class="headerlink" title="5、tweak无法选择shell主题"></a>5、<code>tweak</code>无法选择shell主题</h4><p>需要在<code>tweak-&gt;扩展-&gt;开启User Themes</code></p>
+<h4 id="6、中文环境下将Home目录下的文件夹切换为英文名"><a href="#6、中文环境下将Home目录下的文件夹切换为英文名" class="headerlink" title="6、中文环境下将Home目录下的文件夹切换为英文名"></a>6、中文环境下将<code>Home</code>目录下的文件夹切换为英文名</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置英文语言环境 (恢复-&gt; zh_CN)</span></span><br><span class="line"><span class="built_in">export</span> LANG=en_US</span><br><span class="line"><span class="comment"># 更新目录</span></span><br><span class="line">xdg-user-dirs-gtk-update</span><br></pre></td></tr></table></figure>
+
+<h4 id="7、18-04开机启动特别慢的问题"><a href="#7、18-04开机启动特别慢的问题" class="headerlink" title="7、18.04开机启动特别慢的问题"></a>7、<code>18.04</code>开机启动特别慢的问题</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 列出程序开机占用时间排行</span></span><br><span class="line">systemd-analyze blame</span><br><span class="line"><span class="comment"># 禁用plymouth</span></span><br><span class="line">sudo systemctl mask plymouth-start.service</span><br><span class="line">sudo systemctl mask plymouth-read-write.service</span><br></pre></td></tr></table></figure>
+
+<h4 id="网易云音乐1-1-0后不能打开的解决方法"><a href="#网易云音乐1-1-0后不能打开的解决方法" class="headerlink" title="网易云音乐1.1.0后不能打开的解决方法"></a>网易云音乐<code>1.1.0</code>后不能打开的解决方法</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 使用root权限命令行后台启动并且屏蔽输出</span></span><br><span class="line">sudo netease-cloud-music &gt; /dev/null 2&gt;&amp;1 &amp;</span><br><span class="line"><span class="comment"># 规避session-manager引起的bug</span></span><br><span class="line"><span class="built_in">alias</span> netease=<span class="string">'unset SESSION_MANAGER &amp;&amp; netease-cloud-music'</span></span><br><span class="line">netease &gt; /dev/null &amp;</span><br></pre></td></tr></table></figure>
+
+<p>推荐使用这个第三方<code>client</code><br><a href="https://github.com/trazyn/ieaseMusic" target="_blank" rel="noopener">https://github.com/trazyn/ieaseMusic</a></p>
+
+        
+    </section>
+</article>
+
+
+
+<a id="pagenext" href="/2019/04/07/hexo-travis/" class="article-next" title="hexo 集成 travis ci 自动部署"><i class="icon-arrow-right"></i></a>
+
+
+<a id="pageprev" href="/2019/04/25/jenkins-gitlab-bash/" class="article-prev" title="Gitlab+Jenkins+Bash 搭建多流水线自动部署"><i class="icon-arrow-left"></i></a>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "e1cbbb8b52f5de53cbce",
+        clientSecret: "494fa22a9ca1b8d0a148ec8410e33eb1b08922bb",
+        repo: "crcms.github.io",
+        owner: "crcms",
+        admin: ["crcms"],
+        id: "2019/04/12/ubuntu-install",
+        distractionFreeMode: true,
+        title: "ubuntu18.04 安装",
+        body: "http://blog.crcms.cn/2019/04/12/ubuntu-install/",
+        labels: ["ubuntu"]
+    }).render('comments');
+    </script>
+</div>
+
+
+            </div>
+        </div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?2c09de12c175e88fd5cb35771db9e691";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
+    
+
+</body>
+</html>

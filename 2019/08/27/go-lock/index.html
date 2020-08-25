@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>Golang 锁的简单使用 | CRCMS</title>
+    <meta name="author" content="simon">
+    <meta name="keywords" content>
+    <meta name="description" content="简述Golang中的锁机制主要包含互斥锁和读写锁互斥锁互斥锁是传统并发程序对共享资源进行控制访问的主要手段。在Go中主要使用sync.Mutex的结构体表示。一个简单的示例：123456func mutex()  &amp;#123;	var mu sync.Mutex	mu.Lock()	fmt.Println(&#34;locked&#34;)	mu.Unlock()&amp;#125;或者也可以使用defer来实现，这在整个函数流程中全部要加锁时特别有用，还有一个好处就是可以防止忘记Unlock1234...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="CRCMS" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.png">
+    
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'icomoon';
+        src: url("/fonts/icomoon.eot?q628ml");
+        src: url("/fonts/icomoon.eot?q628ml#iefix") format('embedded-opentype'),
+             url("/fonts/icomoon.ttf?q628ml") format('truetype'),
+             url("/fonts/icomoon.woff?q628ml") format('woff'),
+             url("/fonts/icomoon.svg?q628ml#icomoon") format('svg');
+        font-weight: normal;
+        font-style: normal;
+    }
+    </style>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!--[if lt IE 9]>
+    <style type="text/css">
+    .nav-inner {top:0;}
+    .author-meta {position:static;top:0;}
+    .search-form {height:36px;}
+    </style>
+    <script type="text/javascript" src="https://unpkg.com/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <main class="app">
+        <header id="header" class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">CRCMS</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+            <a class="nav-item" href="/reward">
+                <span class="nav-text">支持</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.crcms.cn"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简述"><span class="toc-number">1.</span> <span class="toc-text">简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#互斥锁"><span class="toc-number">2.</span> <span class="toc-text">互斥锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#读写锁"><span class="toc-number">3.</span> <span class="toc-text">读写锁</span></a></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content">
+            <div id="wrapper" class="wrapper" style="max-width: 800px">
+                <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            Golang 锁的简单使用
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.crcms.cn/2019/08/27/go-lock/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2019-08-27T22:01:34.000Z" itemprop="datePublished">2019-08-28</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/golang/">golang</a>, <a class="article-tag-link" href="/tags/lock/">lock</a>, <a class="article-tag-link" href="/tags/sync-mutex/">sync.mutex</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h2 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h2><p>Golang中的锁机制主要包含互斥锁和读写锁</p>
+<h2 id="互斥锁"><a href="#互斥锁" class="headerlink" title="互斥锁"></a>互斥锁</h2><p>互斥锁是传统并发程序对共享资源进行控制访问的主要手段。在<code>Go</code>中主要使用<br><code>sync.Mutex</code>的结构体表示。</p>
+<p>一个简单的示例：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">mutex</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	<span class="keyword">var</span> mu sync.Mutex</span><br><span class="line">	mu.Lock()</span><br><span class="line">	fmt.Println(<span class="string">"locked"</span>)</span><br><span class="line">	mu.Unlock()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>或者也可以使用<code>defer</code>来实现，这在整个函数流程中全部要加锁时特别有用，还有一个好处就是可以防止忘记<code>Unlock</code></p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">mutex</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	<span class="keyword">var</span> mu sync.Mutex</span><br><span class="line">	mu.Lock()</span><br><span class="line">	<span class="keyword">defer</span> mu.Unlock()</span><br><span class="line">	fmt.Println(<span class="string">"locked"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>互斥锁是开箱即用的，只需要申明<code>sync.Mutex</code>即可直接使用</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> mu sync.Mutex</span><br></pre></td></tr></table></figure>
+
+<p>互斥锁应该是<code>成对出现</code>，在同步语句不可以再对<code>锁加锁</code>，看下面的示例：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">mutex</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	<span class="keyword">var</span> mu sync.Mutex</span><br><span class="line">	mu.Lock()</span><br><span class="line">	fmt.Println(<span class="string">"parent locked"</span>)</span><br><span class="line">	mu.Lock()</span><br><span class="line">	fmt.Println(<span class="string">"sub locked"</span>)</span><br><span class="line">	mu.Unlock()</span><br><span class="line">	mu.Unlock()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时则会出现<code>fatal error: all goroutines are asleep - deadlock!</code>错误</p>
+<p>同样，如果多次对一个锁解锁，则会出现<code>fatal error: sync: unlock of unlocked mutex</code>错误</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">mutex</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	<span class="keyword">var</span> mu sync.Mutex</span><br><span class="line">	mu.Lock()</span><br><span class="line">	fmt.Println(<span class="string">"locked"</span>)</span><br><span class="line">	mu.Unlock()</span><br><span class="line">	mu.Unlock()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么在<code>goroutine</code>中是否对外部锁加锁呢？</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">mutex</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	<span class="keyword">var</span> mu sync.Mutex</span><br><span class="line">	fmt.Println(<span class="string">"parent lock start"</span>)</span><br><span class="line">	mu.Lock()</span><br><span class="line">	fmt.Println(<span class="string">"parent locked"</span>)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt;= <span class="number">2</span>; i++ &#123;</span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(i <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">            fmt.Printf(<span class="string">"sub(%d) lock start\n"</span>, i)</span><br><span class="line">            mu.Lock()</span><br><span class="line">            fmt.Printf(<span class="string">"sub(%d) locked\n"</span>, i)</span><br><span class="line">            time.Sleep(time.Microsecond * <span class="number">30</span>)</span><br><span class="line">            mu.Unlock()</span><br><span class="line">            fmt.Printf(<span class="string">"sub(%d) unlock\n"</span>, i)</span><br><span class="line">        &#125;(i)</span><br><span class="line">    &#125;</span><br><span class="line">	time.Sleep(time.Second * <span class="number">2</span>)</span><br><span class="line">	mu.Unlock()</span><br><span class="line">	fmt.Println(<span class="string">"parent unlock"</span>)</span><br><span class="line">	time.Sleep(time.Second * <span class="number">2</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>先看上面的函数执行结果</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">parent lock start</span><br><span class="line">parent locked</span><br><span class="line">sub(0) lock start</span><br><span class="line">sub(2) lock start</span><br><span class="line">sub(1) lock start</span><br><span class="line">parent unlock // 必须等到父级先解锁，后面则会阻塞</span><br><span class="line">sub(0) locked // 解锁后子goroutine才能执行锁定</span><br><span class="line">sub(0) unlock</span><br><span class="line">sub(2) locked</span><br><span class="line">sub(2) unlock</span><br><span class="line">sub(1) locked</span><br><span class="line">sub(1) unlock</span><br></pre></td></tr></table></figure>
+
+<p>为了方便调试，使用了<code>time.Sleep()</code>来延迟保证<code>goroutine</code>的执行<br>从结果中可以看出，当所有的<code>goroutine</code>遇到<code>Lock</code>时都会阻塞，而当<code>main</code>函数中的<code>Unlock</code>执行后，会有一个优先（无序）的<code>goroutine</code>来占得锁，其它的则再次进入阻塞状态。</p>
+<p><strong>总结：</strong></p>
+<ul>
+<li>互斥锁必须成对出现</li>
+<li>同级别互斥锁不能嵌套使用</li>
+<li>父级中如果存在锁，当在<code>goroutine</code>中执行重复锁定操作时<code>goroutine</code>将被阻塞，直到原互斥锁解锁，多个<code>goroutine</code>将会争抢当前锁资源，其它继续阻塞。</li>
+</ul>
+<h2 id="读写锁"><a href="#读写锁" class="headerlink" title="读写锁"></a>读写锁</h2><p>读写锁和互斥锁不同之处在于，可以分别针对读操作和写操作进行分别锁定，这样对于性能有一定的提升。<br>读写锁，对于多个写操作，以及写操作和读操作之前都是互斥的这一点基本等同于互斥锁。<br>但是对于同时多个读操作之前却非互斥关系，这也是相读写锁性能高于互斥锁的主要原因。</p>
+<p>读写锁也是开箱即用型的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var rwm = sync.RWMutex</span><br></pre></td></tr></table></figure>
+
+<p>读写锁分为写锁和读锁：</p>
+<ul>
+<li><p>写锁定和写解锁</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rwm.Lock()</span><br><span class="line">rwm.Unlock()</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>读锁定和读解锁</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rwm.RLock()</span><br><span class="line">rwm.RUnlock()</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>读写锁的读锁和写锁不能交叉相互解锁，否则会发生<code>panic</code>，如：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">rwMutex</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	<span class="keyword">var</span> rwm sync.RWMutex</span><br><span class="line"></span><br><span class="line">	rwm.Lock()</span><br><span class="line">	fmt.Println(<span class="string">"locked"</span>)</span><br><span class="line">	rwm.RUnlock()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>fatal error: sync: RUnlock of unlocked RWMutex</code></p>
+<p>对于读写锁，同一资源可以同时有多个读锁定，如：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">rwMutex</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	<span class="keyword">var</span> rwm sync.RWMutex</span><br><span class="line"></span><br><span class="line">	rwm.RLock()</span><br><span class="line">	rwm.RLock()</span><br><span class="line">	rwm.RLock()</span><br><span class="line">	fmt.Println(<span class="string">"locked"</span>)</span><br><span class="line">	rwm.RUnlock()</span><br><span class="line">	rwm.RUnlock()</span><br><span class="line">	rwm.RUnlock()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但对于写锁定只能有一个（和互斥锁相同），同时使用多个会产生<code>deadlock</code>的<code>panic</code>，如：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">rwMutex</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	<span class="keyword">var</span> rwm sync.RWMutex</span><br><span class="line"></span><br><span class="line">	rwm.Lock()</span><br><span class="line">	rwm.Lock()</span><br><span class="line">	rwm.Lock()</span><br><span class="line">	fmt.Println(<span class="string">"locked"</span>)</span><br><span class="line">	rwm.Unlock()</span><br><span class="line">	rwm.Unlock()</span><br><span class="line">	rwm.Unlock()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>在<code>goroutine</code>中，写解锁会试图唤醒所有想要进行读锁定而被阻塞的<code>goroutine</code>。</strong></p>
+<p><strong>而读解锁会在已无任何读锁定的情况下，试图唤醒一个想进行写锁定而被阻塞的<code>goroutine</code>。</strong></p>
+<p>下面看一个完整示例：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">rwMutex</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> rwm sync.RWMutex</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt;= <span class="number">2</span>; i++ &#123;</span><br><span class="line">        <span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(i <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">            fmt.Printf(<span class="string">"go(%d) start lock\n"</span>, i)</span><br><span class="line">            rwm.RLock()</span><br><span class="line">            fmt.Printf(<span class="string">"go(%d) locked\n"</span>, i)</span><br><span class="line">            time.Sleep(time.Second * <span class="number">2</span>)</span><br><span class="line">            rwm.RUnlock()</span><br><span class="line">            fmt.Printf(<span class="string">"go(%d) unlock\n"</span>, i)</span><br><span class="line">        &#125;(i)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 先sleep一小会，保证for的goroutine都会执行</span></span><br><span class="line">    time.Sleep(time.Microsecond * <span class="number">100</span>)</span><br><span class="line">    fmt.Println(<span class="string">"main start lock"</span>)</span><br><span class="line">    <span class="comment">// 当子进程都执行时，且子进程所有的资源都已经Unlock了</span></span><br><span class="line">    <span class="comment">// 父进程才会执行</span></span><br><span class="line">    rwm.Lock()</span><br><span class="line">    fmt.Println(<span class="string">"main locked"</span>)</span><br><span class="line">    time.Sleep(time.Second)</span><br><span class="line">    rwm.Unlock()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">go(0) start lock</span><br><span class="line">go(0) locked</span><br><span class="line">go(1) start lock</span><br><span class="line">go(1) locked</span><br><span class="line">go(2) start lock</span><br><span class="line">go(2) locked</span><br><span class="line">main start lock</span><br><span class="line">go(2) unlock</span><br><span class="line">go(0) unlock</span><br><span class="line">go(1) unlock</span><br><span class="line">main locked</span><br></pre></td></tr></table></figure>
+
+<p>反复执行上述示例中，可以看到，写锁定会阻塞<code>goroutine</code><br>最开始先在<code>main</code>中<code>sleep 100ms</code> ，保证子的<code>goroutine</code>会全部执行，而每个子<code>goroutine</code>会<code>sleep 2s</code>。<br>此时会阻塞整个<code>main</code>进程，当所有子<code>goroutine</code>执行结束，读解锁后，main的写锁定才会执行。</p>
+<p>再看一个读锁定示例：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">rwMutex5</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> rwm sync.RWMutex</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt;= <span class="number">2</span>; i++ &#123;</span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(i <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">			fmt.Printf(<span class="string">"go(%d) start lock\n"</span>, i)</span><br><span class="line">			rwm.RLock()</span><br><span class="line">			fmt.Printf(<span class="string">"go(%d) locked\n"</span>, i)</span><br><span class="line">			time.Sleep(time.Second * <span class="number">2</span>)</span><br><span class="line">			rwm.RUnlock()</span><br><span class="line">			fmt.Printf(<span class="string">"go(%d) unlock\n"</span>, i)</span><br><span class="line">		&#125;(i)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Println(<span class="string">"main start lock"</span>)</span><br><span class="line">	rwm.RLock()</span><br><span class="line">	fmt.Println(<span class="string">"main locked"</span>)</span><br><span class="line">	time.Sleep(time.Second * <span class="number">10</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">main start lock</span><br><span class="line">main locked</span><br><span class="line">go(1) start lock</span><br><span class="line">go(1) locked</span><br><span class="line">go(2) start lock</span><br><span class="line">go(2) locked</span><br><span class="line">go(0) start lock</span><br><span class="line">go(0) locked</span><br><span class="line">go(0) unlock</span><br><span class="line">go(1) unlock</span><br><span class="line">go(2) unlock</span><br></pre></td></tr></table></figure>
+
+<p>可以看到读锁定却并不会阻塞<code>goroutine</code>。</p>
+<p><strong>总结：</strong></p>
+<ul>
+<li>读锁定和写锁定对于写操作都是互斥的</li>
+<li>读锁定支持多级嵌套，但写锁定无法嵌套执行</li>
+<li>如果有写锁定，当多个读解锁全部执行完成后，则会唤起执行写锁定</li>
+<li>写锁定会阻塞<code>goroutine</code>（在Lock()时和互斥锁一样，RLock()时先也是等到RUnlock()先执行，才有锁定机会）</li>
+</ul>
+
+        
+    </section>
+</article>
+
+
+
+<a id="pagenext" href="/2019/08/14/linked-list-2-0/" class="article-next" title="单向链表优化"><i class="icon-arrow-right"></i></a>
+
+
+<a id="pageprev" href="/2019/09/19/redis-basic-command/" class="article-prev" title="Redis基础数据类型和常用操作命令"><i class="icon-arrow-left"></i></a>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "e1cbbb8b52f5de53cbce",
+        clientSecret: "494fa22a9ca1b8d0a148ec8410e33eb1b08922bb",
+        repo: "crcms.github.io",
+        owner: "crcms",
+        admin: ["crcms"],
+        id: "2019/08/27/go-lock",
+        distractionFreeMode: true,
+        title: "Golang 锁的简单使用",
+        body: "http://blog.crcms.cn/2019/08/27/go-lock/",
+        labels: ["golang","sync.mutex","lock"]
+    }).render('comments');
+    </script>
+</div>
+
+
+            </div>
+        </div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?2c09de12c175e88fd5cb35771db9e691";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
+    
+
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>通过git subtree来创建自己的子仓库 | CRCMS</title>
+    <meta name="author" content="simon">
+    <meta name="keywords" content>
+    <meta name="description" content="简述查看laravel/framework，就会发现其实laravel主包是由多个子包构建。每个子包又都可以独立使用，主包中相关子包的commit必须一致，同时还需要同步更新方便。如何做到这一点的呢？Subtreesubtree 是什么git subtree 可以实现一个仓库作为其他仓库的子仓库。或者说，可以实现一个主仓库包含多个子仓库。subtree 的使用查看git subtree --help，发现命令如下：123456git subtree add   -P &amp;lt;pref...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="CRCMS" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.png">
+    
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'icomoon';
+        src: url("/fonts/icomoon.eot?q628ml");
+        src: url("/fonts/icomoon.eot?q628ml#iefix") format('embedded-opentype'),
+             url("/fonts/icomoon.ttf?q628ml") format('truetype'),
+             url("/fonts/icomoon.woff?q628ml") format('woff'),
+             url("/fonts/icomoon.svg?q628ml#icomoon") format('svg');
+        font-weight: normal;
+        font-style: normal;
+    }
+    </style>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!--[if lt IE 9]>
+    <style type="text/css">
+    .nav-inner {top:0;}
+    .author-meta {position:static;top:0;}
+    .search-form {height:36px;}
+    </style>
+    <script type="text/javascript" src="https://unpkg.com/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <main class="app">
+        <header id="header" class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">CRCMS</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+            <a class="nav-item" href="/reward">
+                <span class="nav-text">支持</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.crcms.cn"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简述"><span class="toc-number">1.</span> <span class="toc-text">简述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Subtree"><span class="toc-number">2.</span> <span class="toc-text">Subtree</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#subtree-是什么"><span class="toc-number">2.1.</span> <span class="toc-text">subtree 是什么</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#subtree-的使用"><span class="toc-number">2.2.</span> <span class="toc-text">subtree 的使用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#测试"><span class="toc-number">3.</span> <span class="toc-text">测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#优化"><span class="toc-number">4.</span> <span class="toc-text">优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Composer-replace"><span class="toc-number">5.</span> <span class="toc-text">Composer replace</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#相关资料"><span class="toc-number">6.</span> <span class="toc-text">相关资料</span></a></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content">
+            <div id="wrapper" class="wrapper" style="max-width: 800px">
+                <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            通过git subtree来创建自己的子仓库
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.crcms.cn/2019/06/25/git-subtree/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2019-06-25T00:16:31.000Z" itemprop="datePublished">2019-06-25</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/composer/">composer</a>, <a class="article-tag-link" href="/tags/git/">git</a>, <a class="article-tag-link" href="/tags/laravel/">laravel</a>, <a class="article-tag-link" href="/tags/subtree/">subtree</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h2 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h2><p>查看<a href="https://github.com/laravel/framework" target="_blank" rel="noopener"><code>laravel/framework</code></a>，就会发现其实<code>laravel</code>主包是由多个子包构建。<br>每个子包又都可以独立使用，主包中相关子包的<code>commit</code>必须一致，同时还需要同步更新方便。如何做到这一点的呢？</p>
+<h2 id="Subtree"><a href="#Subtree" class="headerlink" title="Subtree"></a>Subtree</h2><h3 id="subtree-是什么"><a href="#subtree-是什么" class="headerlink" title="subtree 是什么"></a>subtree 是什么</h3><p><code>git subtree</code> 可以实现一个仓库作为其他仓库的子仓库。或者说，可以实现一个主仓库包含多个子仓库。</p>
+<h3 id="subtree-的使用"><a href="#subtree-的使用" class="headerlink" title="subtree 的使用"></a>subtree 的使用</h3><p>查看<code>git subtree --help</code>，发现命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git subtree add   -P &lt;prefix&gt; &lt;commit&gt;</span><br><span class="line">git subtree add   -P &lt;prefix&gt; &lt;repository&gt; &lt;ref&gt;</span><br><span class="line">git subtree pull  -P &lt;prefix&gt; &lt;repository&gt; &lt;ref&gt;</span><br><span class="line">git subtree push  -P &lt;prefix&gt; &lt;repository&gt; &lt;ref&gt;</span><br><span class="line">git subtree merge -P &lt;prefix&gt; &lt;commit&gt;</span><br><span class="line">git subtree split -P &lt;prefix&gt; [OPTIONS] [&lt;commit&gt;]</span><br></pre></td></tr></table></figure>
+
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><p>使用以下简写来代表仓库名称：</p>
+<ul>
+<li><code>A</code>：主仓库</li>
+<li><code>B</code>：子仓库</li>
+</ul>
+<ol>
+<li>首先新建一个A仓库，进入A的主目录，在A仓库中执行命令（假定所有子仓库目录都存在于<code>A/src</code>中）<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git subtree add -P src/B https://github.com/B.git master</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>此时subtree则在<code>A</code>仓库中绑定了<code>B</code>仓库</p>
+<ol start="2">
+<li><p>进入<code>A/src/B</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">touch <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在<code>A</code>根目录提交<code>commit</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git add src/B/<span class="built_in">test</span></span><br><span class="line">git commit -m <span class="string">"subtree test"</span></span><br><span class="line">git push origin master</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p>那是如何同步相关<code>commit</code>到子仓库呢？<code>subtree push</code>即可</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git subtree push -P src/B https://github.com/B.git master</span><br></pre></td></tr></table></figure>
+
+<p>即此，已经完成<code>A</code>,<code>B</code>仓库相关<code>commit</code>同步</p>
+<h2 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h2><p>如果，<code>A/src</code>中有很多子仓库，每次更新完成后，手动更新N个子仓库非常让人头疼，索性搞个Bash跑一遍</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/usr/bin/env bash</span></span><br><span class="line"><span class="built_in">set</span> -euo pipefail</span><br><span class="line"></span><br><span class="line">TARGET_DIRECTORY=<span class="string">"<span class="variable">$(pwd)</span>/src"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> git.branch &#123;</span><br><span class="line">  br=`git branch | grep <span class="string">"*"</span>`</span><br><span class="line">  <span class="built_in">echo</span> <span class="variable">$&#123;br/* /&#125;</span></span><br><span class="line">&#125;</span><br><span class="line">BRANCH=$(git.branch)</span><br><span class="line"></span><br><span class="line"><span class="comment"># each所有目录</span></span><br><span class="line"><span class="keyword">for</span> file <span class="keyword">in</span> `ls <span class="variable">$&#123;TARGET_DIRECTORY&#125;</span>`</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    <span class="keyword">if</span> [[ -d <span class="string">"<span class="variable">$&#123;TARGET_DIRECTORY&#125;</span>/<span class="variable">$&#123;file&#125;</span>"</span> ]]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">"==================Current:<span class="variable">$&#123;file&#125;</span>==================\n"</span></span><br><span class="line">        <span class="built_in">echo</span> `git subtree push -P src/<span class="variable">$&#123;file&#125;</span> git@github.com:<span class="variable">$&#123;file&#125;</span>.git <span class="variable">$&#123;BRANCH&#125;</span>`</span><br><span class="line">        <span class="built_in">echo</span> -e <span class="string">"\n"</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Composer-replace"><a href="#Composer-replace" class="headerlink" title="Composer replace"></a>Composer replace</h2><p>可以看到在<code>laravel/composer.json</code>中有<code>replace</code>属性</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&quot;replace&quot;: &#123;</span><br><span class="line">    &quot;illuminate/auth&quot;: &quot;self.version&quot;,</span><br><span class="line">    &quot;illuminate/broadcasting&quot;: &quot;self.version&quot;,</span><br><span class="line">    &quot;illuminate/bus&quot;: &quot;self.version&quot;</span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么如果是<code>PHP</code>情况下我们也可以，使用<code>replace</code>来在主包中加载子包依赖，从而提升统一版本更新的便捷性。</p>
+<h2 id="相关资料"><a href="#相关资料" class="headerlink" title="相关资料"></a>相关资料</h2><p><a href="https://docs.phpcomposer.com/04-schema.html#replace" target="_blank" rel="noopener">Composer Replace使用</a><br><a href="https://git-scm.com/docs/git-pull#Documentation/git-pull.txt-subtreeltpathgt" target="_blank" rel="noopener">Git subtree使用</a></p>
+
+        
+    </section>
+</article>
+
+
+
+<a id="pagenext" href="/2019/06/14/laravel-env/" class="article-next" title="Laravel env 下特殊字符的坑"><i class="icon-arrow-right"></i></a>
+
+
+<a id="pageprev" href="/2019/08/09/binary-search/" class="article-prev" title="Golang 二分法查找"><i class="icon-arrow-left"></i></a>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "e1cbbb8b52f5de53cbce",
+        clientSecret: "494fa22a9ca1b8d0a148ec8410e33eb1b08922bb",
+        repo: "crcms.github.io",
+        owner: "crcms",
+        admin: ["crcms"],
+        id: "2019/06/25/git-subtree",
+        distractionFreeMode: true,
+        title: "通过git subtree来创建自己的子仓库",
+        body: "http://blog.crcms.cn/2019/06/25/git-subtree/",
+        labels: ["composer","laravel","git","subtree"]
+    }).render('comments');
+    </script>
+</div>
+
+
+            </div>
+        </div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?2c09de12c175e88fd5cb35771db9e691";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
+    
+
+</body>
+</html>

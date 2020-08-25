@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>夯实Linux基础 - 用户和组管理 | CRCMS</title>
+    <meta name="author" content="simon">
+    <meta name="keywords" content>
+    <meta name="description" content="用户管理命令添加用户1useradd [options] USERNAME常用选项：​    -c 基本的注释信息​    -d 指定创建的家目录​    -m 创建时自动创建目录，通常配合-k选项使用​    -k 会自动把/etc/skel中的基本bash配置文件拷贝到当前创建用户的家目录​    -u 指定用户ID​    -g 指定的基本组ID号（组必须存在）​    -G 指定的附加组，格式如 1,2 或组名 `user,game​    -r 创建系统用户​    -s...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="CRCMS" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.png">
+    
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'icomoon';
+        src: url("/fonts/icomoon.eot?q628ml");
+        src: url("/fonts/icomoon.eot?q628ml#iefix") format('embedded-opentype'),
+             url("/fonts/icomoon.ttf?q628ml") format('truetype'),
+             url("/fonts/icomoon.woff?q628ml") format('woff'),
+             url("/fonts/icomoon.svg?q628ml#icomoon") format('svg');
+        font-weight: normal;
+        font-style: normal;
+    }
+    </style>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!--[if lt IE 9]>
+    <style type="text/css">
+    .nav-inner {top:0;}
+    .author-meta {position:static;top:0;}
+    .search-form {height:36px;}
+    </style>
+    <script type="text/javascript" src="https://unpkg.com/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <main class="app">
+        <header id="header" class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">CRCMS</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+            <a class="nav-item" href="/reward">
+                <span class="nav-text">支持</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.crcms.cn"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#用户管理命令"><span class="toc-number">1.</span> <span class="toc-text">用户管理命令</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#组命令管理"><span class="toc-number">2.</span> <span class="toc-text">组命令管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#涉及的文件"><span class="toc-number">3.</span> <span class="toc-text">涉及的文件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#基本说明"><span class="toc-number">3.1.</span> <span class="toc-text">基本说明</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#文件格式"><span class="toc-number">3.2.</span> <span class="toc-text">文件格式</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content">
+            <div id="wrapper" class="wrapper" style="max-width: 800px">
+                <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            夯实Linux基础 - 用户和组管理
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.crcms.cn/2020/06/11/linux-base-3/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2020-06-11T10:34:52.000Z" itemprop="datePublished">2020-06-11</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/linux/">linux</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h2 id="用户管理命令"><a href="#用户管理命令" class="headerlink" title="用户管理命令"></a>用户管理命令</h2><p>添加用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">useradd [options] USERNAME</span><br></pre></td></tr></table></figure>
+
+<p>常用选项：</p>
+<p>​    -c 基本的注释信息<br>​    -d 指定创建的家目录<br>​    -m 创建时自动创建目录，通常配合<code>-k</code>选项使用<br>​    -k 会自动把<code>/etc/skel</code>中的基本<code>bash</code>配置文件拷贝到当前创建用户的家目录<br>​    -u 指定用户ID<br>​    -g 指定的基本组ID号（组必须存在）<br>​    -G 指定的附加组，格式如 <code>1,2</code> 或组名 `user,game<br>​    -r 创建系统用户<br>​    -s 指定运行的SHELL</p>
+<blockquote>
+<p>使用<code>-r</code>时系统会创建系统用户，系统用户的ID标识，如果未指定，是在<code>100-999</code>并且未被使用范围内，具体范围可参考<code>/etc/login.defs</code>中的<code>SYS_UID_MIN</code>和<code>SYS_UID_MAX</code></p>
+</blockquote>
+<p>修改用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">usermod [options] LOGIN</span><br></pre></td></tr></table></figure>
+
+<p>常用选项：</p>
+<p>​    -c 基本的注释信息<br>​    -d 指定创建的家目录<br>​    -m 移动已存在的用户家目录到指定位置<br>​    -u 指定用户ID<br>​    -g 指定的基本组ID号（组必须存在）<br>​    -G 指定的附加组，格式如 <code>1,2</code> 或组名 <code>user,game</code> ， <code>-a</code>选项表示在原附加组上进行追加<br>​    -s 指定运行的SHELL<br>​    -L 锁定该用户<br>​    -U 解锁该用户</p>
+<p>删除用户</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">userdel [options] LOGIN</span><br></pre></td></tr></table></figure>
+
+<p>常用选项：</p>
+<p>​    -r 删除用户的家目录</p>
+<a id="more"></a>
+
+<p>查看用户ID信息</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">id [OPTION]... [USER]</span><br></pre></td></tr></table></figure>
+
+<p>常用选项：</p>
+<p>​    -u 查看用户ID<br>​    -g 查看用户基本组<br>​    -G 查看用户附加组<br>​    -n 组合 <code>ugG</code> 选项，给出当前用户名，或组名，及附加组名</p>
+<p>修改用户<code>shell</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chsh [options] [LOGIN]</span><br></pre></td></tr></table></figure>
+
+<p>常用选项：</p>
+<p>​    -s 设置用户<code>shell</code></p>
+<p>查看用户的帐号信息 包括执行shell，home，以及有没有用户的cron</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">finger [LOGIN]</span><br></pre></td></tr></table></figure>
+
+<p>修改密码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">passwd [options] [LOGIN]</span><br></pre></td></tr></table></figure>
+
+<p>常用选项：</p>
+<p>​    -l 锁定用户<br>​    -u 解锁用户<br>​    -e 设置过期时间</p>
+<p>管理密码时效</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chage [options] LOGIN</span><br></pre></td></tr></table></figure>
+
+<p>常用选项：    </p>
+<p>​    -d 设置最后一次密码更改的日期<br>​    -E 设置密码过期时间<br>​    -I 过期后设置密码无效<br>​    -m 设置密码最小修改天数<br>​    -M 设置密码最大修改天数</p>
+<h2 id="组命令管理"><a href="#组命令管理" class="headerlink" title="组命令管理"></a>组命令管理</h2><p>添加用户组</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">groupadd [options] GROUP</span><br></pre></td></tr></table></figure>
+
+<p>常用选项：</p>
+<p>​    -g 指定gid<br>​    -p 为组设置一个密码<br>​    -r 设置为系统组</p>
+<p>修改组</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">groupmod [options] GROUP</span><br></pre></td></tr></table></figure>
+
+<p>常用选项：</p>
+<p>​    -g 指定gid<br>​    -n 修改新的组名称<br>​    -p 设置密码</p>
+<p>删除组</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">groupdel [options] GROUP</span><br></pre></td></tr></table></figure>
+
+<p>常用选项：</p>
+<p>​    -f 强制删除</p>
+<p>组管理工具</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gpasswd [option] GROUP</span><br></pre></td></tr></table></figure>
+
+<p>常用选项：</p>
+<p>​    -a 添加一个用户到指定组<br>​    -d 从组中移除用户<br>​    -r 删除组密码<br>​    -R 限制对GROUP的访问<br>​    -M 为当前组设置用户多个用户</p>
+<p>临时登录切换用户的基本组（需要密码，所以才有gpasswd这个为组设置密码）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">newgrp</span><br></pre></td></tr></table></figure>
+
+<h2 id="涉及的文件"><a href="#涉及的文件" class="headerlink" title="涉及的文件"></a>涉及的文件</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">/etc/passwd                     -&gt;1</span><br><span class="line">/etc/shadow</span><br><span class="line">/etc/group</span><br><span class="line">/etc/gshadow</span><br><span class="line">/etc/default/useradd</span><br><span class="line">/etc/skel</span><br><span class="line">/etc/shells</span><br><span class="line">/etc/login.defs</span><br></pre></td></tr></table></figure>
+
+<h3 id="基本说明"><a href="#基本说明" class="headerlink" title="基本说明"></a>基本说明</h3><p>当使用命令<code>useradd</code>添加一个用户时，如果未指定组，系统会自动生成一个主组（基本组）并且在<code>/etc/passwd</code>下面新生成一条记录，然后会在<code>/etc/group</code>写入用户对应的主组记录</p>
+<p>当使用<code>passwd</code>修改密码时，系统会修改<code>/etc/shadow</code>来设置用户密码</p>
+<p>在使用<code>useradd</code>添加一个用户时，默认如果不指定<code>-d -m</code>等选项时，系统会默认有一个选项值 ，这个选项值保存在<code>/etc/default/useradd</code>中</p>
+<p>当<code>useradd</code>饮食<code>-m -k</code>选项时，系统会自动拷贝<code>/etc/skel/*</code>中的所有相关配置到用户家目录中去</p>
+<p>当使用<code>-s</code>选项设定<code>shell</code>时，我们需要知道系统支持的<code>shell</code>类别，则在文件<code>/etc/shells</code>中查看</p>
+<p>使用<code>groupadd</code>表示添加一个组，如果使用了<code>-p</code>选项，则系统会修改<code>/etc/gshadow</code>文件保存对应的组密码</p>
+<p><code>/etc/login.defs</code>包含了登录的配置控制定义。</p>
+<h3 id="文件格式"><a href="#文件格式" class="headerlink" title="文件格式"></a>文件格式</h3><p><code>/etc/passwd</code> 用户信息保存文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1:2:3:4:5:6:7</span><br><span class="line">root:x:0:0:root:/root:/bin/bash</span><br><span class="line">daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin</span><br><span class="line">bin:x:2:2:bin:/bin:/usr/sbin/nologin</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>用户名</p>
+</li>
+<li><p>密码占位</p>
+</li>
+<li><p>UID</p>
+</li>
+<li><p>GID</p>
+</li>
+<li><p>注释信息(对应useradd -c)</p>
+</li>
+<li><p>主目录路径</p>
+</li>
+<li><p>执行shell</p>
+</li>
+</ol>
+<p><code>/etc/shadow</code> 用户密码保存文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1:2:3:4:5:6:7:8:9</span><br><span class="line">root:$6$XkKHd3gi$mB7EJmIheafUbdS9gN0R2pfMvwBJmyvNV.BV4FGvz47wQIbeVZP1NdpNoGagLRstXUvPAXQxxMLb1uKc6NqQt/:18378:0:99999:7:::</span><br><span class="line">daemon:*:17647:0:99999:7:::</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>用户名</li>
+<li>密码，!或者*的话，表示此帐户不可登录</li>
+<li>密码最近一次修改时间，注意：这个是从1970年1月1日算起的总的天数</li>
+<li>最少多少天后才能改密码的天数(默认为0)</li>
+<li>最多多少天后一定要修改密码的天数(默认为99999)</li>
+<li>过期前多少天时间会被警告</li>
+<li>过期后多少天内账号变为inactive状态，可登陆，但不能操作</li>
+<li>多少天后账号会过期，无法登陆</li>
+<li>保留参数</li>
+</ol>
+<p><code>/etc/group</code>用户组管理</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">1:2:3:4</span><br><span class="line">root:x:0:</span><br><span class="line">daemon:x:1:</span><br><span class="line">bin:x:2:</span><br><span class="line">sys:x:3:</span><br><span class="line">adm:x:4:</span><br><span class="line">tty:x:5:</span><br><span class="line">disk:x:6:</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>组名称</li>
+<li>组密码</li>
+<li>组ID</li>
+<li>当前组对应的其它用户（对于用户来说是附加组）,主组用户不会写入此字段，多个值使用<code>,</code>隔开</li>
+</ol>
+<blockquote>
+<p><code>Linux</code>中一个用户可以有多个组，有主组(基本组)和附加组的区分</p>
+</blockquote>
+<p><code>/etc/gshadow</code>组密码文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">1:2:3:4</span><br><span class="line">root:*::</span><br><span class="line">daemon:*::</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>组名称</li>
+<li>组密码</li>
+<li>组管理员</li>
+<li>组成员和<code>/etc/group</code>中的第4列相同</li>
+</ol>
+<p><code>/etc/skel</code> 默认的<code>shell</code>配置文件目录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">drwxr-xr-x 2 root root 4096 Mar 11 21:05 .</span><br><span class="line">drwxr-xr-x 1 root root 4096 Jun 12 06:10 ..</span><br><span class="line">-rw-r--r-- 1 root root  220 Apr  4  2018 .bash_logout</span><br><span class="line">-rw-r--r-- 1 root root 3771 Apr  4  2018 .bashrc</span><br><span class="line">-rw-r--r-- 1 root root  807 Apr  4  2018 .profile</span><br></pre></td></tr></table></figure>
+
+<p><code>/etc/shells</code>默认系统支持的shell</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/bin/bash</span><br><span class="line">/bin/csh</span><br><span class="line">/bin/ksh</span><br><span class="line">/bin/sh</span><br><span class="line">/bin/tcsh</span><br><span class="line">/bin/zsh</span><br></pre></td></tr></table></figure>
+
+<p><code>/etc/login.defs</code>用户登录的相关配置文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">PASS_MAX_DAYS   99999　　#密码最大有效期</span><br><span class="line">PASS_MIN_DAYS   0 　　  #两次修改密码的最小间隔时间</span><br><span class="line">PASS_MIN_LEN    5     #密码最小长度，对于root无效</span><br><span class="line">PASS_WARN_AGE   7      #密码过期前多少天开始提示</span><br><span class="line"></span><br><span class="line"># Min/max values for automatic uid selection in useradd</span><br><span class="line">#创建用户时不指定UID的话自动UID的范围</span><br><span class="line">UID_MIN                   500 #用户ID的最小值</span><br><span class="line">UID_MAX                 60000   #用户ID的最大值</span><br><span class="line"></span><br><span class="line"># Min/max values for automatic gid selection in groupadd</span><br><span class="line">#自动组ID的范围</span><br><span class="line">GID_MIN                   500  #组ID的最小值</span><br><span class="line">GID_MAX                 60000  #组ID的最大值</span><br></pre></td></tr></table></figure>
+
+
+        
+    </section>
+</article>
+
+
+
+<a id="pagenext" href="/2020/06/09/linux-base-2/" class="article-next" title="夯实Linux基础 - 文件系统基础命令"><i class="icon-arrow-right"></i></a>
+
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "e1cbbb8b52f5de53cbce",
+        clientSecret: "494fa22a9ca1b8d0a148ec8410e33eb1b08922bb",
+        repo: "crcms.github.io",
+        owner: "crcms",
+        admin: ["crcms"],
+        id: "2020/06/11/linux-base-3",
+        distractionFreeMode: true,
+        title: "夯实Linux基础 - 用户和组管理",
+        body: "http://blog.crcms.cn/2020/06/11/linux-base-3/",
+        labels: ["linux"]
+    }).render('comments');
+    </script>
+</div>
+
+
+            </div>
+        </div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?2c09de12c175e88fd5cb35771db9e691";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
+    
+
+</body>
+</html>

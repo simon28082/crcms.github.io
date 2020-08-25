@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>Gitlab+Jenkins+Bash 搭建多流水线自动部署 | CRCMS</title>
+    <meta name="author" content="simon">
+    <meta name="keywords" content>
+    <meta name="description" content="简介因为涉及到的子项目非常多，为了方便统一更新部署测试等相关运行代码，所以Jenkinsfile在本项目中只是起到一个阶段挂载的作用，大部分部署代码使用的是Bash。此方法并不适合大规模集群部署。Jenkins安装安装启动1docker-compose up -d jenkins本环境中使用的是laradock中Jenkins进行安装，如果非Docker请参考官方文档进行安装增加Jenkins插件在系统管理-&amp;gt;插件管理中安装Blue Ocean和GitLab插件在项目...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="CRCMS" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.png">
+    
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'icomoon';
+        src: url("/fonts/icomoon.eot?q628ml");
+        src: url("/fonts/icomoon.eot?q628ml#iefix") format('embedded-opentype'),
+             url("/fonts/icomoon.ttf?q628ml") format('truetype'),
+             url("/fonts/icomoon.woff?q628ml") format('woff'),
+             url("/fonts/icomoon.svg?q628ml#icomoon") format('svg');
+        font-weight: normal;
+        font-style: normal;
+    }
+    </style>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!--[if lt IE 9]>
+    <style type="text/css">
+    .nav-inner {top:0;}
+    .author-meta {position:static;top:0;}
+    .search-form {height:36px;}
+    </style>
+    <script type="text/javascript" src="https://unpkg.com/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <main class="app">
+        <header id="header" class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">CRCMS</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+            <a class="nav-item" href="/reward">
+                <span class="nav-text">支持</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.crcms.cn"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jenkins安装"><span class="toc-number">2.</span> <span class="toc-text">Jenkins安装</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#安装启动"><span class="toc-number">2.1.</span> <span class="toc-text">安装启动</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#增加Jenkins插件"><span class="toc-number">2.2.</span> <span class="toc-text">增加Jenkins插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在项目根目录新建Jenkinsfile"><span class="toc-number">2.3.</span> <span class="toc-text">在项目根目录新建Jenkinsfile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#增加单独Build的bash项目，于用执行具体步骤流程"><span class="toc-number">2.4.</span> <span class="toc-text">增加单独Build的bash项目，于用执行具体步骤流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#创建流水线"><span class="toc-number">2.5.</span> <span class="toc-text">创建流水线</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Gitlab配置webhook"><span class="toc-number">2.6.</span> <span class="toc-text">Gitlab配置webhook</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#注意"><span class="toc-number">3.</span> <span class="toc-text">注意</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#关于自动部署"><span class="toc-number">3.1.</span> <span class="toc-text">关于自动部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#关于Bash执行及异常停止"><span class="toc-number">3.2.</span> <span class="toc-text">关于Bash执行及异常停止</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Jenkins-Dockfile-执行时加载路径问题"><span class="toc-number">3.3.</span> <span class="toc-text">Jenkins Dockfile 执行时加载路径问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Gitlab-webhook-访问本地网络"><span class="toc-number">3.4.</span> <span class="toc-text">Gitlab webhook 访问本地网络</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模板"><span class="toc-number">4.</span> <span class="toc-text">模板</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#本地Jenkinsfile一个简单模板"><span class="toc-number">4.1.</span> <span class="toc-text">本地Jenkinsfile一个简单模板</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PHP-Dockerfile-agent"><span class="toc-number">4.2.</span> <span class="toc-text">PHP Dockerfile agent</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content">
+            <div id="wrapper" class="wrapper" style="max-width: 800px">
+                <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            Gitlab+Jenkins+Bash 搭建多流水线自动部署
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.crcms.cn/2019/04/25/jenkins-gitlab-bash/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2019-04-25T23:21:14.000Z" itemprop="datePublished">2019-04-26</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/gitlab/">gitlab</a>, <a class="article-tag-link" href="/tags/jenkins/">jenkins</a>, <a class="article-tag-link" href="/tags/pipeline/">pipeline</a>, <a class="article-tag-link" href="/tags/自动部署/">自动部署</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <p><img src="/images/jenkins-gitlab-bash/1.png" alt="jenkins pipeline" title="jenkins pipeline"></p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>因为涉及到的子项目非常多，为了方便统一更新部署测试等相关运行代码，所以<code>Jenkinsfile</code>在本项目中只是起到一个阶段挂载的作用，大部分部署代码使用的是<code>Bash</code>。<br>此方法并不适合大规模集群部署。</p>
+<h2 id="Jenkins安装"><a href="#Jenkins安装" class="headerlink" title="Jenkins安装"></a>Jenkins安装</h2><h3 id="安装启动"><a href="#安装启动" class="headerlink" title="安装启动"></a>安装启动</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker-compose up -d jenkins</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>本环境中使用的是laradock中Jenkins进行安装，如果非<code>Docker</code>请参考官方文档进行安装</p>
+</blockquote>
+<h3 id="增加Jenkins插件"><a href="#增加Jenkins插件" class="headerlink" title="增加Jenkins插件"></a>增加Jenkins插件</h3><p>在<code>系统管理</code>-&gt;<code>插件管理</code>中安装<code>Blue Ocean</code>和<code>GitLab</code>插件</p>
+<h3 id="在项目根目录新建Jenkinsfile"><a href="#在项目根目录新建Jenkinsfile" class="headerlink" title="在项目根目录新建Jenkinsfile"></a>在项目根目录新建Jenkinsfile</h3><p>关于Jenkinsfile相关文档，请参考<a href="https://jenkins.io/zh/doc/book/pipeline/" target="_blank" rel="noopener">官网</a></p>
+<h3 id="增加单独Build的bash项目，于用执行具体步骤流程"><a href="#增加单独Build的bash项目，于用执行具体步骤流程" class="headerlink" title="增加单独Build的bash项目，于用执行具体步骤流程"></a>增加单独Build的bash项目，于用执行具体步骤流程</h3><p>因公司内部使用，So ……</p>
+<h3 id="创建流水线"><a href="#创建流水线" class="headerlink" title="创建流水线"></a>创建流水线</h3><p>打开 <code>Open Blue Ocean</code> 选择一个创建流水线项目，当然需要加上gitlab的ssk-key，否则无法进行拉取</p>
+<h3 id="Gitlab配置webhook"><a href="#Gitlab配置webhook" class="headerlink" title="Gitlab配置webhook"></a>Gitlab配置webhook</h3><ul>
+<li><code>Jenkins</code> -&gt; <code>系统配置</code> -&gt; <code>Gitlab</code> 进行配置测试连接Gitlab</li>
+<li><code>Jenkins项目</code> -&gt; <code>选择分支</code> -&gt; <code>view configure</code> -&gt; <code>构建触发器</code> 找到gitlab webhook选项</li>
+<li><code>gitlab管理</code> -&gt; <code>设置</code> -&gt; <code>集成</code> 增加webhook url</li>
+</ul>
+<h2 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h2><h3 id="关于自动部署"><a href="#关于自动部署" class="headerlink" title="关于自动部署"></a>关于自动部署</h3><p>使用的是<code>scp</code>+<code>ssh</code>+<code>ssh-key</code>+<code>hook.sh</code>来实现的自动远程部署以及部署后需要执行的命令</p>
+<ul>
+<li>服务器增加远程部署帐号（如果需要<code>sudo</code>，则要开启<code>sudo</code>免密，在<code>sudoers.d</code>中增加<code>account ALL=(ALL:ALL) NOPASSWD: ALL</code>，具体权限以项目需求为准）</li>
+<li>使用<code>scp</code>上传</li>
+<li><code>ssh</code> 登录，并执行常规操作</li>
+<li><code>hook.sh</code> 进行部署的后期操作</li>
+</ul>
+<blockquote>
+<p>此方法实现简单，但安全性并不是特别高。<br>    所以必须要保证ssh-key不可丢失，以及最好限制ssh的登录IP</p>
+</blockquote>
+<blockquote>
+<p>关于部署失败进行回滚操作，暂未实现，不过可以提供一个思路参考：<br>备份部署前的代码，失败则解压上一次的代码进行覆盖回滚，执行<code>hook.sh</code>即可</p>
+</blockquote>
+<h3 id="关于Bash执行及异常停止"><a href="#关于Bash执行及异常停止" class="headerlink" title="关于Bash执行及异常停止"></a>关于Bash执行及异常停止</h3><p>默认Bash并不会异常停止，以及需要打印变量输出，以及管道错误处理，需要在Bash头上加上如下代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set -euxo pipefail</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>具体请参考：<a href="http://www.ruanyifeng.com/blog/2017/11/bash-set.html?utm_source=tool.lu" target="_blank" rel="noopener">Bash 脚本 set 命令教程</a></p>
+</blockquote>
+<h3 id="Jenkins-Dockfile-执行时加载路径问题"><a href="#Jenkins-Dockfile-执行时加载路径问题" class="headerlink" title="Jenkins Dockfile 执行时加载路径问题"></a>Jenkins Dockfile 执行时加载路径问题</h3><p>关于使用<code>Dockfile</code>作为<code>agent</code>环境，因为多子项目共用，并未放在单独的项目下，在公用<code>build</code>其调用路径相当于以当前项目作为根目录，层层往上，如下：</p>
+<p>建议使用-v挂载一些常用缓存目录，如<code>composer/.cache</code>等</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">agent &#123;</span><br><span class="line">        dockerfile &#123;</span><br><span class="line">            filename &quot;../../build/php/Dockerfile&quot;</span><br><span class="line">            dir &quot;../../build/php&quot;</span><br><span class="line">            additionalBuildArgs &apos;&apos;</span><br><span class="line">            args &apos;-v /tmp/composer:/root/.composer&apos;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Gitlab-webhook-访问本地网络"><a href="#Gitlab-webhook-访问本地网络" class="headerlink" title="Gitlab webhook 访问本地网络"></a>Gitlab webhook 访问本地网络</h3><p><code>管理区域</code> -&gt; <code>设置</code> -&gt; <code>Outbound requests</code> -&gt; <code>允许钩子和服务访问本地网络</code></p>
+<h2 id="模板"><a href="#模板" class="headerlink" title="模板"></a>模板</h2><h3 id="本地Jenkinsfile一个简单模板"><a href="#本地Jenkinsfile一个简单模板" class="headerlink" title="本地Jenkinsfile一个简单模板"></a>本地Jenkinsfile一个简单模板</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">pipeline &#123;</span><br><span class="line">    agent &#123;</span><br><span class="line">        dockerfile &#123;</span><br><span class="line">            filename &quot;../../build/php/Dockerfile&quot;</span><br><span class="line">            dir &quot;../../build/php&quot;</span><br><span class="line">            additionalBuildArgs &apos;&apos;</span><br><span class="line">            args &apos;-v /tmp/composer:/root/.composer&apos;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    environment &#123;</span><br><span class="line">        EX_JENKINS_HOME = &quot;$&#123;JENKINS_HOME&#125;&quot;</span><br><span class="line">        EX_CURRENT_APP = &quot;project-name&quot;</span><br><span class="line">        EX_CURRENT_ENV = &quot;$&#123;BRANCH_NAME&#125;&quot;</span><br><span class="line">        DO_RELEASE = &apos;yes&apos;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    stages &#123;</span><br><span class="line">        stage(&apos;Prepare&apos;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                echo &apos;Prepare&apos;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        stage(&apos;Build&apos;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &quot;$&#123;JENKINS_HOME&#125;/build/scripts/build.sh php&quot;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        stage(&apos;Test&apos;) &#123;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &quot;$&#123;JENKINS_HOME&#125;/build/scripts/test.sh php&quot;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        stage(&apos;Release?&apos;) &#123;</span><br><span class="line">            when &#123;</span><br><span class="line">                branch &apos;product&apos;</span><br><span class="line">            &#125;</span><br><span class="line">            steps &#123;</span><br><span class="line">                script &#123;</span><br><span class="line">                    env.DO_RELEASE = input &quot;Should we continue?&quot;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        stage(&apos;Deploy&apos;) &#123;</span><br><span class="line">            when &#123;</span><br><span class="line">                environment name: &apos;DO_RELEASE&apos;, value: &apos;yes&apos;</span><br><span class="line">            &#125;</span><br><span class="line">            steps &#123;</span><br><span class="line">                sh &quot;$&#123;JENKINS_HOME&#125;/build/scripts/deploy.sh php&quot;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="PHP-Dockerfile-agent"><a href="#PHP-Dockerfile-agent" class="headerlink" title="PHP Dockerfile agent"></a>PHP Dockerfile agent</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">FROM ubuntu:latest</span><br><span class="line"></span><br><span class="line">MAINTAINER simon</span><br><span class="line"></span><br><span class="line">USER root</span><br><span class="line"></span><br><span class="line">ARG ARG_TIMEZONE=Asia/Shanghai</span><br><span class="line">RUN ln -snf /usr/share/zoneinfo/$&#123;ARG_TIMEZONE&#125; /etc/localtime &amp;&amp; echo $&#123;ARG_TIMEZONE&#125; &gt; /etc/timezone</span><br><span class="line"></span><br><span class="line">RUN apt-get update -yqq \</span><br><span class="line">    &amp;&amp; apt-get install -y sudo \</span><br><span class="line">    &amp;&amp; apt-get install -y php7.2-dev \</span><br><span class="line">    &amp;&amp; apt-get install -y php7.2-mbstring \</span><br><span class="line">    &amp;&amp; apt-get install -y php7.2-curl \</span><br><span class="line">    &amp;&amp; apt-get install -y php7.2-mysql \</span><br><span class="line">    &amp;&amp; apt-get install -y php7.2-zip \</span><br><span class="line">    &amp;&amp; apt-get install -y php7.2-gd \</span><br><span class="line">    &amp;&amp; apt-get install -y php7.2-bcmath \</span><br><span class="line">    &amp;&amp; apt-get install -y composer</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#### php pecl #############################</span><br><span class="line">RUN pecl channel-update pecl.php.net</span><br><span class="line"></span><br><span class="line">ARG ARG_PHP_MODS_AVAILABLE_PATH=/etc/php/7.2/mods-available</span><br><span class="line">ARG ARG_PHP_CONF_PATH=/etc/php/7.2/cli/conf.d</span><br><span class="line"></span><br><span class="line"># mongodb</span><br><span class="line">RUN pecl install mongodb \</span><br><span class="line">    &amp;&amp; echo &quot;extension=mongodb.so&quot; &gt; $&#123;ARG_PHP_MODS_AVAILABLE_PATH&#125;/mongodb.ini \</span><br><span class="line">    &amp;&amp; ln -s $&#123;ARG_PHP_MODS_AVAILABLE_PATH&#125;/mongodb.ini $&#123;ARG_PHP_CONF_PATH&#125;/20-mongodb.ini</span><br><span class="line"></span><br><span class="line"># redis</span><br><span class="line">RUN pecl install igbinary \</span><br><span class="line">    &amp;&amp; echo &quot;extension=igbinary.so&quot; &gt; $&#123;ARG_PHP_MODS_AVAILABLE_PATH&#125;/igbinary.ini \</span><br><span class="line">    &amp;&amp; ln -s $&#123;ARG_PHP_MODS_AVAILABLE_PATH&#125;/igbinary.ini $&#123;ARG_PHP_CONF_PATH&#125;/20-igbinary.ini \</span><br><span class="line">    &amp;&amp; pecl install redis \</span><br><span class="line">    &amp;&amp; echo &quot;extension=redis.so&quot; &gt; $&#123;ARG_PHP_MODS_AVAILABLE_PATH&#125;/redis.ini \</span><br><span class="line">    &amp;&amp; ln -s $&#123;ARG_PHP_MODS_AVAILABLE_PATH&#125;/redis.ini $&#123;ARG_PHP_CONF_PATH&#125;/20-redis.ini</span><br><span class="line"></span><br><span class="line"># swoole</span><br><span class="line">RUN pecl install swoole \</span><br><span class="line">    &amp;&amp; echo &quot;extension=swoole.so&quot; &gt; $&#123;ARG_PHP_MODS_AVAILABLE_PATH&#125;/swoole.ini \</span><br><span class="line">    &amp;&amp; ln -s $&#123;ARG_PHP_MODS_AVAILABLE_PATH&#125;/swoole.ini $&#123;ARG_PHP_CONF_PATH&#125;/20-swoole.ini</span><br><span class="line"></span><br><span class="line">#### clear #############################</span><br><span class="line"># clear Ubuntu image will run automatically apt-get clean,so is not need apt-get clean</span><br><span class="line">RUN apt-get -y autoremove</span><br><span class="line"></span><br><span class="line">WORKDIR &quot;/data&quot;</span><br><span class="line"></span><br><span class="line">CMD [&quot;/bin/bash&quot;]</span><br></pre></td></tr></table></figure>
+        
+    </section>
+</article>
+
+
+
+<a id="pagenext" href="/2019/04/12/ubuntu-install/" class="article-next" title="ubuntu18.04 安装"><i class="icon-arrow-right"></i></a>
+
+
+<a id="pageprev" href="/2019/05/05/golang-interface-basic/" class="article-prev" title="Golang Interface 基础示例一"><i class="icon-arrow-left"></i></a>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "e1cbbb8b52f5de53cbce",
+        clientSecret: "494fa22a9ca1b8d0a148ec8410e33eb1b08922bb",
+        repo: "crcms.github.io",
+        owner: "crcms",
+        admin: ["crcms"],
+        id: "2019/04/25/jenkins-gitlab-bash",
+        distractionFreeMode: true,
+        title: "Gitlab+Jenkins+Bash 搭建多流水线自动部署",
+        body: "http://blog.crcms.cn/2019/04/25/jenkins-gitlab-bash/",
+        labels: ["gitlab","jenkins","pipeline","自动部署"]
+    }).render('comments');
+    </script>
+</div>
+
+
+            </div>
+        </div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?2c09de12c175e88fd5cb35771db9e691";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
+    
+
+</body>
+</html>

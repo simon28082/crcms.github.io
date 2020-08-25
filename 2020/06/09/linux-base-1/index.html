@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>夯实Linux基础 - 入门 | CRCMS</title>
+    <meta name="author" content="simon">
+    <meta name="keywords" content>
+    <meta name="description" content="文件目录结构1234567891011121314151617181920212223242526├── bin                                     可执行文件，用户命令，系统启动相关的├── boot                                    系统启动文件├── dev                                     设备文件，设备数据的访问入口(块设备,字符设备)├── etc           ...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="CRCMS" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.png">
+    
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'icomoon';
+        src: url("/fonts/icomoon.eot?q628ml");
+        src: url("/fonts/icomoon.eot?q628ml#iefix") format('embedded-opentype'),
+             url("/fonts/icomoon.ttf?q628ml") format('truetype'),
+             url("/fonts/icomoon.woff?q628ml") format('woff'),
+             url("/fonts/icomoon.svg?q628ml#icomoon") format('svg');
+        font-weight: normal;
+        font-style: normal;
+    }
+    </style>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!--[if lt IE 9]>
+    <style type="text/css">
+    .nav-inner {top:0;}
+    .author-meta {position:static;top:0;}
+    .search-form {height:36px;}
+    </style>
+    <script type="text/javascript" src="https://unpkg.com/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <main class="app">
+        <header id="header" class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">CRCMS</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+            <a class="nav-item" href="/reward">
+                <span class="nav-text">支持</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.crcms.cn"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#文件目录结构"><span class="toc-number">1.</span> <span class="toc-text">文件目录结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#开始第一个命令type"><span class="toc-number">2.</span> <span class="toc-text">开始第一个命令type</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#命令如何找到的"><span class="toc-number">3.</span> <span class="toc-text">命令如何找到的</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#命令帮助"><span class="toc-number">4.</span> <span class="toc-text">命令帮助</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#超级man"><span class="toc-number">5.</span> <span class="toc-text">超级man</span></a></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content">
+            <div id="wrapper" class="wrapper" style="max-width: 800px">
+                <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            夯实Linux基础 - 入门
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.crcms.cn/2020/06/09/linux-base-1/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2020-06-09T17:34:33.000Z" itemprop="datePublished">2020-06-10</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/linux/">linux</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h2 id="文件目录结构"><a href="#文件目录结构" class="headerlink" title="文件目录结构"></a>文件目录结构</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">├── bin                                     可执行文件，用户命令，系统启动相关的</span><br><span class="line">├── boot                                    系统启动文件</span><br><span class="line">├── dev                                     设备文件，设备数据的访问入口(块设备,字符设备)</span><br><span class="line">├── etc                                     配置文件</span><br><span class="line">├── home</span><br><span class="line">├── lib                                     库文件</span><br><span class="line">├── lib64                                   库文件64位</span><br><span class="line">├── media                                   挂载点目录，通常用于挂载移动设备</span><br><span class="line">├── mnt                                     额外的临时文件系统，如第二块硬盘</span><br><span class="line">├── opt                                     可选目录，早期通常用于第三方安装程序的安装目录，现在基本安装在/usr/local中</span><br><span class="line">├── proc                                    伪文件系统，内核的映射文件</span><br><span class="line">├── root                                    root用户目录</span><br><span class="line">├── run                                     系统运行目录</span><br><span class="line">├── sbin                                    可执行文件，系统命令，系统启动相关的</span><br><span class="line">├── sys                                     伪文件系统 和硬件设备相关的属性映射文件</span><br><span class="line">├── tmp                                     系统临时文件</span><br><span class="line">├── usr                                     Unix操作系统软件资源所放置的目录(Unix Software Resource)</span><br><span class="line">│   ├── bin                                 主要是用于系统启动后提供的一系列用户命令</span><br><span class="line">│   ├── local                               第三方软件</span><br><span class="line">│   │   ├── bin</span><br><span class="line">│   │   ├── lib</span><br><span class="line">│   │   ├── share</span><br><span class="line">│   │   └── sbin</span><br><span class="line">│   ├── lib                                 不包含于系统核心库的库</span><br><span class="line">│   └── sbin                                主要是用于系统启动后提供的一系列系统命令</span><br><span class="line">└── var                                     可变目录</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<h2 id="开始第一个命令type"><a href="#开始第一个命令type" class="headerlink" title="开始第一个命令type"></a>开始第一个命令<code>type</code></h2><p><code>type</code>主要是用于区别命令类型，格式如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">type</span> &lt;cmd&gt;</span><br></pre></td></tr></table></figure>
+
+<p>如下示例：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">type</span> <span class="built_in">cd</span></span><br><span class="line"><span class="comment"># output: cd is a shell builtin -&gt; 系统内置命令</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">type</span> chmod</span><br><span class="line"><span class="comment"># output: chmod is /bin/chmod -&gt; 外部命令路径</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">type</span> ls</span><br><span class="line"><span class="comment"># output: ls is aliased to `ls --color=auto' -&gt; 外部命令描述</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="命令如何找到的"><a href="#命令如何找到的" class="headerlink" title="命令如何找到的"></a>命令如何找到的</h2><p>环境变量PATH，在terminal中我们输入<code>echo $PATH</code>可以看到，命令的查找存储路径，如下示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin</span><br></pre></td></tr></table></figure>
+
+<p><code>PATH</code>中多个路径使用<code>:</code>分隔</p>
+<p>我们所有执行的命令查找都是系统通过<code>PATH</code>环境变量来查找，系统会从<code>PATH</code>路径左侧目录开始查找，找到第一个即会停止。</p>
+<p>系统对于已使用的命令，并不会每次都去重新查找真实路径，而是会放到内存缓存中来提高查找效率。</p>
+<p>通过<code>hash</code>命令可以查看缓存区命中的命令集合</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">hash</span></span><br></pre></td></tr></table></figure>
+
+<p>输出如下示例：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">hits	command</span><br><span class="line">   1	/bin/cat</span><br><span class="line">   3	/usr/sbin/useradd</span><br><span class="line">   6	/bin/ls</span><br></pre></td></tr></table></figure>
+
+<h2 id="命令帮助"><a href="#命令帮助" class="headerlink" title="命令帮助"></a>命令帮助</h2><p>通过<code>type &lt;cmd&gt;</code>可以判断是否是系统内置命令，系统内置命令可以使用，<code>help</code>命令来查找帮助使用说明。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">help</span> <span class="built_in">cd</span></span><br></pre></td></tr></table></figure>
+
+<p>非系统内置命令，基本上使用<code>--help</code>选项，来查找帮助。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls --<span class="built_in">help</span></span><br></pre></td></tr></table></figure>
+
+<p>远程帮助文档，可以使用如下<code>info</code>命令，如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">info ls</span><br></pre></td></tr></table></figure>
+
+<p>另外，在Linux中大部分文档都存储在<code>/usr/share/doc</code>目录中。</p>
+<h2 id="超级man"><a href="#超级man" class="headerlink" title="超级man"></a>超级<code>man</code></h2><p><code>man</code>手册(<code>manual</code>)的简写，<code>Linux</code>几乎所有的命令都可以通过<code>man</code>来查找说明和使用。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">man <span class="built_in">cd</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/Users/simon/Documents/%E5%85%AC%E5%8F%B8/Linux/Basic/Linux%E5%9F%BA%E7%A1%80%E4%B8%80.assets/image-20200609221059943.png" alt="image-20200609221059943"></p>
+<p>上图可以看到类似于<code>BUILTIN(1)</code>这种字样，这是表示<code>cd</code>是内置命令，并且<code>(1)</code>表示当前在<code>man</code>的第几章节中。</p>
+<p><code>man</code>的几个主要章节为：</p>
+<ul>
+<li><p>1 用户命令(/bin:/usr/bin:/usr/local/bin)</p>
+</li>
+<li><p>2 系统调用</p>
+</li>
+<li><p>3 库调用</p>
+</li>
+<li><p>4 特殊文件，如设备文件</p>
+</li>
+<li><p>5 文件格式，解释配置文件的语法 如man 5 passwd</p>
+</li>
+<li><p>6 游戏</p>
+</li>
+<li><p>7 杂项</p>
+</li>
+<li><p>8 管理命令 （/sbin:/usr/sbin:/usr/local/sbin）</p>
+</li>
+</ul>
+<p>可以使用另一个命令<code>whatis</code>来查看命令在哪个章节中，如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">whatis chmod</span><br></pre></td></tr></table></figure>
+
+<p><img src="/Users/simon/Documents/%E5%85%AC%E5%8F%B8/Linux/Basic/Linux%E5%9F%BA%E7%A1%80%E4%B8%80.assets/image-20200609221655831.png" alt="image-20200609221655831"></p>
+<p>可以看到<code>chmod</code>在第一章节中</p>
+<p><code>man</code>的快捷键</p>
+<p>向后翻一屏：<code>space</code></p>
+<p>向前翻一屏：<code>b</code></p>
+<p>向后翻一行：<code>enter</code></p>
+<p>向前翻一行：<code>k</code></p>
+<p><code>/keyword</code> 向后搜索</p>
+<p><code>?keyword</code> 向前搜索</p>
+<p><code>n</code>: 下一个</p>
+<p><code>N</code>: 前一个</p>
+
+        
+    </section>
+</article>
+
+
+
+<a id="pagenext" href="/2019/12/27/http-tcp/" class="article-next" title="Http/TCP 基础协议"><i class="icon-arrow-right"></i></a>
+
+
+<a id="pageprev" href="/2020/06/09/linux-base-2/" class="article-prev" title="夯实Linux基础 - 文件系统基础命令"><i class="icon-arrow-left"></i></a>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "e1cbbb8b52f5de53cbce",
+        clientSecret: "494fa22a9ca1b8d0a148ec8410e33eb1b08922bb",
+        repo: "crcms.github.io",
+        owner: "crcms",
+        admin: ["crcms"],
+        id: "2020/06/09/linux-base-1",
+        distractionFreeMode: true,
+        title: "夯实Linux基础 - 入门",
+        body: "http://blog.crcms.cn/2020/06/09/linux-base-1/",
+        labels: ["linux"]
+    }).render('comments');
+    </script>
+</div>
+
+
+            </div>
+        </div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?2c09de12c175e88fd5cb35771db9e691";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
+    
+
+</body>
+</html>

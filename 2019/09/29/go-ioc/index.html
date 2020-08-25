@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>Golang Ioc容器 | CRCMS</title>
+    <meta name="author" content="simon">
+    <meta name="keywords" content>
+    <meta name="description" content="简介用惯了Laravel的Ioc，对象获取变得那么自然，初用Go，各struct,func都要自己解析一堆NewFunc，索性自己搞了个ioc参见Github(https://github.com/firmeve/firmeve)对象绑定1f := NewFirmeve()标量绑定1f.Bind(`bool`, false)1f.Bind(`string`, &#34;string&#34;)Struct 绑定假设我们有如下struct1234567type Foo struct &amp;#12...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="CRCMS" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.png">
+    
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'icomoon';
+        src: url("/fonts/icomoon.eot?q628ml");
+        src: url("/fonts/icomoon.eot?q628ml#iefix") format('embedded-opentype'),
+             url("/fonts/icomoon.ttf?q628ml") format('truetype'),
+             url("/fonts/icomoon.woff?q628ml") format('woff'),
+             url("/fonts/icomoon.svg?q628ml#icomoon") format('svg');
+        font-weight: normal;
+        font-style: normal;
+    }
+    </style>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!--[if lt IE 9]>
+    <style type="text/css">
+    .nav-inner {top:0;}
+    .author-meta {position:static;top:0;}
+    .search-form {height:36px;}
+    </style>
+    <script type="text/javascript" src="https://unpkg.com/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <main class="app">
+        <header id="header" class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">CRCMS</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+            <a class="nav-item" href="/reward">
+                <span class="nav-text">支持</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.crcms.cn"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#简介"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#对象绑定"><span class="toc-number">2.</span> <span class="toc-text">对象绑定</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#标量绑定"><span class="toc-number">2.1.</span> <span class="toc-text">标量绑定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Struct-绑定"><span class="toc-number">2.2.</span> <span class="toc-text">Struct 绑定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Prt-绑定"><span class="toc-number">2.3.</span> <span class="toc-text">Prt 绑定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#函数绑定"><span class="toc-number">2.4.</span> <span class="toc-text">函数绑定</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#已绑定值覆盖"><span class="toc-number">2.5.</span> <span class="toc-text">已绑定值覆盖</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#对象获取"><span class="toc-number">3.</span> <span class="toc-text">对象获取</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#验证对象是否存在"><span class="toc-number">3.1.</span> <span class="toc-text">验证对象是否存在</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#对象获取-1"><span class="toc-number">3.2.</span> <span class="toc-text">对象获取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#新对象获取"><span class="toc-number">3.3.</span> <span class="toc-text">新对象获取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#单例获取"><span class="toc-number">3.4.</span> <span class="toc-text">单例获取</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参数解析"><span class="toc-number">4.</span> <span class="toc-text">参数解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#函数自动解析"><span class="toc-number">4.1.</span> <span class="toc-text">函数自动解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结构体tag自动解析"><span class="toc-number">4.2.</span> <span class="toc-text">结构体tag自动解析</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content">
+            <div id="wrapper" class="wrapper" style="max-width: 800px">
+                <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            Golang Ioc容器
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.crcms.cn/2019/09/29/go-ioc/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2019-09-29T09:45:34.000Z" itemprop="datePublished">2019-09-29</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/golang/">golang</a>, <a class="article-tag-link" href="/tags/ioc/">ioc</a>, <a class="article-tag-link" href="/tags/reflect/">reflect</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>用惯了<code>Laravel</code>的<code>Ioc</code>，对象获取变得那么自然，初用<code>Go</code>，各<code>struct</code>,<code>func</code>都要自己解析<br>一堆<code>NewFunc</code>，索性自己搞了个<code>ioc</code><br><a href="https://github.com/firmeve/firmeve" target="_blank" rel="noopener">参见Github(https://github.com/firmeve/firmeve)</a></p>
+<h2 id="对象绑定"><a href="#对象绑定" class="headerlink" title="对象绑定"></a>对象绑定</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f := NewFirmeve()</span><br></pre></td></tr></table></figure>
+
+<h3 id="标量绑定"><a href="#标量绑定" class="headerlink" title="标量绑定"></a>标量绑定</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f.Bind(<span class="string">`bool`</span>, <span class="literal">false</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f.Bind(<span class="string">`string`</span>, <span class="string">"string"</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Struct-绑定"><a href="#Struct-绑定" class="headerlink" title="Struct 绑定"></a><code>Struct</code> 绑定</h3><p>假设我们有如下<code>struct</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Foo <span class="keyword">struct</span> &#123;</span><br><span class="line">    Bar <span class="keyword">string</span>	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewFoo</span><span class="params">(bar <span class="keyword">string</span>)</span> <span class="title">Foo</span></span>&#123;</span><br><span class="line">    <span class="keyword">return</span> Foo&#123;Bar:bar&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们将<code>foo</code>绑定进我们的容器中</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f.Bind(<span class="string">`foo`</span>,NewFoo(<span class="string">"abc"</span>))</span><br></pre></td></tr></table></figure>
+
+<h3 id="Prt-绑定"><a href="#Prt-绑定" class="headerlink" title="Prt 绑定"></a><code>Prt</code> 绑定</h3><p>绑定<code>prt</code>的<code>struct</code>类型是我们最常用的一种方式，请看下面的示例</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Baz <span class="keyword">struct</span> &#123;</span><br><span class="line">    Baz <span class="keyword">string</span>	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewBaz</span><span class="params">()</span> *<span class="title">Baz</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;Baz&#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">f.Bind(<span class="string">`baz`</span>, NewBaz())</span><br></pre></td></tr></table></figure>
+
+<h3 id="函数绑定"><a href="#函数绑定" class="headerlink" title="函数绑定"></a>函数绑定</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewFoo</span><span class="params">()</span> <span class="title">Foo</span></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> Foo&#123;Bar:<span class="string">"default string"</span>&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">f.Bind(<span class="string">`foo`</span>, NewFoo)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>使用<code>Firmeve</code>在绑定的时候暂时不支持参数注入<br>注意：如果是非函数类型绑定，则会默认为单实例类型</p>
+</blockquote>
+<h3 id="已绑定值覆盖"><a href="#已绑定值覆盖" class="headerlink" title="已绑定值覆盖"></a>已绑定值覆盖</h3><p>我们通过<code>WithBindCover(true)</code>方法可以轻松设定覆盖参数</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">f.Bind(<span class="string">`bool`</span>, <span class="literal">false</span>)</span><br><span class="line">fmt.Printf(<span class="string">"%t"</span>,f.Get(<span class="string">`bool`</span>))</span><br><span class="line">f.Bind(<span class="string">`bool`</span>, <span class="literal">true</span>, WithBindCover(<span class="literal">true</span>))</span><br><span class="line">fmt.Printf(<span class="string">"%t"</span>,f.Get(<span class="string">`bool`</span>))</span><br></pre></td></tr></table></figure>
+
+<h2 id="对象获取"><a href="#对象获取" class="headerlink" title="对象获取"></a>对象获取</h2><h3 id="验证对象是否存在"><a href="#验证对象是否存在" class="headerlink" title="验证对象是否存在"></a>验证对象是否存在</h3><p>在不确定容器中是否包含此对象时，请使用<code>Has</code>方法进行判断</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f.Has(<span class="string">`foo`</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="对象获取-1"><a href="#对象获取-1" class="headerlink" title="对象获取"></a>对象获取</h3><p>直接获取容器中的值</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">f.Get(<span class="string">`foo`</span>)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：如果指的定的<code>key</code>不存在，则会抛出<code>panic</code>错误</p>
+</blockquote>
+<h3 id="新对象获取"><a href="#新对象获取" class="headerlink" title="新对象获取"></a>新对象获取</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewFoo</span><span class="params">()</span> <span class="title">Foo</span></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> Foo&#123;Bar:<span class="string">"default string"</span>&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">f.Bind(<span class="string">`foo`</span>, NewFoo)</span><br><span class="line">fmt.Printf(<span class="string">"%p\n"</span>,f.Get(<span class="string">"foo"</span>))</span><br><span class="line">fmt.Printf(<span class="string">"%p\n"</span>,f.Get(<span class="string">"foo"</span>))</span><br><span class="line">fmt.Printf(<span class="string">"%p\n"</span>,f.Get(<span class="string">"foo"</span>))</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在<code>Firmeve</code>中，如果需要每次重新得到一个新的结构体对象<br>必须绑定一个函数值，否则得到的将是一个单实例</p>
+</blockquote>
+<h3 id="单例获取"><a href="#单例获取" class="headerlink" title="单例获取"></a>单例获取</h3><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewFoo</span><span class="params">()</span> <span class="title">Foo</span></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> Foo&#123;Bar:<span class="string">"default string"</span>&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">f.Bind(<span class="string">`foo`</span>, NewFoo())</span><br><span class="line">fmt.Printf(<span class="string">"%p\n"</span>,f.Get(<span class="string">"foo"</span>))</span><br><span class="line">fmt.Printf(<span class="string">"%p\n"</span>,f.Get(<span class="string">"foo"</span>))</span><br><span class="line">fmt.Printf(<span class="string">"%p\n"</span>,f.Get(<span class="string">"foo"</span>))</span><br></pre></td></tr></table></figure>
+
+<h2 id="参数解析"><a href="#参数解析" class="headerlink" title="参数解析"></a>参数解析</h2><h3 id="函数自动解析"><a href="#函数自动解析" class="headerlink" title="函数自动解析"></a>函数自动解析</h3><p>让我们来看一个简单的示例</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> PersonName <span class="keyword">struct</span> &#123;</span><br><span class="line">	Name <span class="keyword">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewPersonName</span><span class="params">()</span> <span class="title">PersonName</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> PersonName&#123;Name: <span class="string">"Firmeve"</span>&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> PersonAge <span class="keyword">struct</span> &#123;</span><br><span class="line">	Age <span class="keyword">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PersonAge</span><span class="params">()</span> *<span class="title">PersonAge</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;PersonAge&#123;Age: <span class="number">1</span>&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">	name PersonName</span><br><span class="line">	age *PersonAge</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewPerson</span><span class="params">(name PersonName,age *PersonAge)</span> *<span class="title">NewPerson</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> NewPerson&#123;</span><br><span class="line">    	name: name</span><br><span class="line">    	age: age</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">f.Bind(<span class="string">"PersonName"</span>, NewPersonName)</span><br><span class="line">f.Bind(<span class="string">"PersonAge"</span>, PersonAge)</span><br><span class="line">fmt.Printf(<span class="string">"%#v"</span>, f.Resolve(NewPerson))</span><br></pre></td></tr></table></figure>
+
+<h3 id="结构体tag自动解析"><a href="#结构体tag自动解析" class="headerlink" title="结构体tag自动解析"></a>结构体tag自动解析</h3><p>现在，让我们修改下上面的<code>Person</code></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">	Name PersonName <span class="string">`inject:"PersonName"`</span></span><br><span class="line">	Age *PersonAge <span class="string">`inject:"PersonAge"`</span></span><br><span class="line">	age1 *PersonAge <span class="string">`inject:"PersonAge"`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后我们使用<code>new</code>函数直接创建一个新的结构体指针</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fmt.Printf(<span class="string">"%#v"</span>, <span class="built_in">new</span>(NewPerson))</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：此时 <code>Person</code>中的<code>Name</code>字段并不是指针类型，而<code>age1</code>不符合<code>struct</code>的<code>tag</code>规范，所以<code>Firmeve</code>都会自动忽略。</p>
+</blockquote>
+
+        
+    </section>
+</article>
+
+
+
+<a id="pagenext" href="/2019/09/19/redis-basic-command/" class="article-next" title="Redis基础数据类型和常用操作命令"><i class="icon-arrow-right"></i></a>
+
+
+<a id="pageprev" href="/2019/10/14/mysql8-binlog-replication/" class="article-prev" title="Mysql8下主从复制、主主复制、多源复制"><i class="icon-arrow-left"></i></a>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "e1cbbb8b52f5de53cbce",
+        clientSecret: "494fa22a9ca1b8d0a148ec8410e33eb1b08922bb",
+        repo: "crcms.github.io",
+        owner: "crcms",
+        admin: ["crcms"],
+        id: "2019/09/29/go-ioc",
+        distractionFreeMode: true,
+        title: "Golang Ioc容器",
+        body: "http://blog.crcms.cn/2019/09/29/go-ioc/",
+        labels: ["golang","ioc","reflect"]
+    }).render('comments');
+    </script>
+</div>
+
+
+            </div>
+        </div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?2c09de12c175e88fd5cb35771db9e691";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
+    
+
+</body>
+</html>

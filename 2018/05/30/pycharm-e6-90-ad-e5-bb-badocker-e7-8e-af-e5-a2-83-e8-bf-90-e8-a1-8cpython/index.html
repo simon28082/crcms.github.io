@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>Pycharm搭建Docker环境运行Python | CRCMS</title>
+    <meta name="author" content="simon">
+    <meta name="keywords" content>
+    <meta name="description" content="部署环境：platform： win10 docker： docker for windows  设置步骤1、允许本机2375端口连接2、测试连接状态settings-&amp;gt;Build-&amp;gt;Docker 当出现如图Connection successful，则表示连接成功3、选择镜像settings-&amp;gt;Project-&amp;gt;Interpreter 选择Docker镜像，如果没有则点击Add，如图： 4、测试至此已完成搭建，新建test.py测试即可 ">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="CRCMS" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.png">
+    
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'icomoon';
+        src: url("/fonts/icomoon.eot?q628ml");
+        src: url("/fonts/icomoon.eot?q628ml#iefix") format('embedded-opentype'),
+             url("/fonts/icomoon.ttf?q628ml") format('truetype'),
+             url("/fonts/icomoon.woff?q628ml") format('woff'),
+             url("/fonts/icomoon.svg?q628ml#icomoon") format('svg');
+        font-weight: normal;
+        font-style: normal;
+    }
+    </style>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!--[if lt IE 9]>
+    <style type="text/css">
+    .nav-inner {top:0;}
+    .author-meta {position:static;top:0;}
+    .search-form {height:36px;}
+    </style>
+    <script type="text/javascript" src="https://unpkg.com/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <main class="app">
+        <header id="header" class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">CRCMS</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+            <a class="nav-item" href="/reward">
+                <span class="nav-text">支持</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.crcms.cn"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#部署环境："><span class="toc-number">1.</span> <span class="toc-text">部署环境：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#设置步骤"><span class="toc-number">2.</span> <span class="toc-text">设置步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1、允许本机2375端口连接"><span class="toc-number">2.1.</span> <span class="toc-text">1、允许本机2375端口连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2、测试连接状态"><span class="toc-number">2.2.</span> <span class="toc-text">2、测试连接状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3、选择镜像"><span class="toc-number">2.3.</span> <span class="toc-text">3、选择镜像</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4、测试"><span class="toc-number">2.4.</span> <span class="toc-text">4、测试</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content">
+            <div id="wrapper" class="wrapper" style="max-width: 800px">
+                <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            Pycharm搭建Docker环境运行Python
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.crcms.cn/2018/05/30/pycharm-e6-90-ad-e5-bb-badocker-e7-8e-af-e5-a2-83-e8-bf-90-e8-a1-8cpython/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-05-30T08:38:16.000Z" itemprop="datePublished">2018-05-30</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/docker/">docker</a>, <a class="article-tag-link" href="/tags/pycharm/">pycharm</a>, <a class="article-tag-link" href="/tags/python/">python</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h2 id="部署环境："><a href="#部署环境：" class="headerlink" title="部署环境："></a>部署环境：</h2><p><strong>platform</strong>： <code>win10</code> <strong>docker</strong>： <code>docker for windows</code> <img src="/images/wp-content/uploads/2018/05/6-1024x291.png" alt> </p>
+<h2 id="设置步骤"><a href="#设置步骤" class="headerlink" title="设置步骤"></a>设置步骤</h2><h3 id="1、允许本机2375端口连接"><a href="#1、允许本机2375端口连接" class="headerlink" title="1、允许本机2375端口连接"></a>1、允许本机2375端口连接</h3><p><img src="/images/wp-content/uploads/2018/05/1.png" alt="docker http://localhost:2375"></p>
+<h3 id="2、测试连接状态"><a href="#2、测试连接状态" class="headerlink" title="2、测试连接状态"></a>2、测试连接状态</h3><pre><code>settings-&gt;Build-&gt;Docker</code></pre><p><img src="/images/wp-content/uploads/2018/05/2.png" alt> 当出现如图Connection successful，则表示连接成功</p>
+<h3 id="3、选择镜像"><a href="#3、选择镜像" class="headerlink" title="3、选择镜像"></a>3、选择镜像</h3><pre><code>settings-&gt;Project-&gt;Interpreter</code></pre><p><img src="/images/wp-content/uploads/2018/05/3.png" alt> 选择Docker镜像，如果没有则点击<code>Add</code>，如图： <img src="/images/wp-content/uploads/2018/05/4.png" alt></p>
+<h3 id="4、测试"><a href="#4、测试" class="headerlink" title="4、测试"></a>4、测试</h3><p>至此已完成搭建，新建test.py测试即可 <img src="/images/wp-content/uploads/2018/05/5.png" alt></p>
+
+        
+    </section>
+</article>
+
+
+
+<a id="pagenext" href="/2018/05/29/e5-83-8f-e4-bd-bf-e7-94-a8-laravel-query-e4-b8-80-e6-a0-b7-e7-9a-84-e6-90-9c-e7-b4-a2-elasticsearch/" class="article-next" title="像使用 Laravel Query 一样的搜索 Elasticsearch"><i class="icon-arrow-right"></i></a>
+
+
+<a id="pageprev" href="/2018/05/31/travisci-e6-8c-81-e7-bb-ad-e9-9b-86-e6-88-90-e8-87-aa-e5-8a-a8-e9-83-a8-e7-bd-b2/" class="article-prev" title="TravisCI持续集成自动部署"><i class="icon-arrow-left"></i></a>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "e1cbbb8b52f5de53cbce",
+        clientSecret: "494fa22a9ca1b8d0a148ec8410e33eb1b08922bb",
+        repo: "crcms.github.io",
+        owner: "crcms",
+        admin: ["crcms"],
+        id: "2018/05/30/pycharm-e6-90-ad-e5-bb-badocker-e7-8e-af-e5-a2-83-e8-bf-90-e8-a1-8cpython",
+        distractionFreeMode: true,
+        title: "Pycharm搭建Docker环境运行Python",
+        body: "http://blog.crcms.cn/2018/05/30/pycharm-e6-90-ad-e5-bb-badocker-e7-8e-af-e5-a2-83-e8-bf-90-e8-a1-8cpython/",
+        labels: ["python","docker","pycharm"]
+    }).render('comments');
+    </script>
+</div>
+
+
+            </div>
+        </div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?2c09de12c175e88fd5cb35771db9e691";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
+    
+
+</body>
+</html>

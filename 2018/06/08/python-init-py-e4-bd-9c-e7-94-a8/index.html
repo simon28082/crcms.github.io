@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>Python: __init__.py 作用 | CRCMS</title>
+    <meta name="author" content="simon">
+    <meta name="keywords" content>
+    <meta name="description" content="__init__.py的作用__init__.py主要是用来初始化 Python包（packages）的，它在模块加载最开始运行。 以下目录结构为示例：├─test                                    │  ├─package_1│  │  ├─__init__.py │  │  ├─m1.py    │  ├─package_2  │  │  ├─__init__.py │  │  └─m2.py│  ├─test.py其中包含两个包pa...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="CRCMS" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.png">
+    
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'icomoon';
+        src: url("/fonts/icomoon.eot?q628ml");
+        src: url("/fonts/icomoon.eot?q628ml#iefix") format('embedded-opentype'),
+             url("/fonts/icomoon.ttf?q628ml") format('truetype'),
+             url("/fonts/icomoon.woff?q628ml") format('woff'),
+             url("/fonts/icomoon.svg?q628ml#icomoon") format('svg');
+        font-weight: normal;
+        font-style: normal;
+    }
+    </style>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!--[if lt IE 9]>
+    <style type="text/css">
+    .nav-inner {top:0;}
+    .author-meta {position:static;top:0;}
+    .search-form {height:36px;}
+    </style>
+    <script type="text/javascript" src="https://unpkg.com/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <main class="app">
+        <header id="header" class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">CRCMS</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+            <a class="nav-item" href="/reward">
+                <span class="nav-text">支持</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.crcms.cn"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#init-py的作用"><span class="toc-number">1.</span> <span class="toc-text">__init__.py的作用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#init-py中有什么"><span class="toc-number">2.</span> <span class="toc-text">__init__.py中有什么</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何执行"><span class="toc-number">3.</span> <span class="toc-text">如何执行</span></a></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content">
+            <div id="wrapper" class="wrapper" style="max-width: 800px">
+                <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            Python: __init__.py 作用
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.crcms.cn/2018/06/08/python-init-py-e4-bd-9c-e7-94-a8/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-06-08T06:46:21.000Z" itemprop="datePublished">2018-06-08</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/init-py/">__init__.py</a>, <a class="article-tag-link" href="/tags/import/">import</a>, <a class="article-tag-link" href="/tags/python/">python</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h2 id="init-py的作用"><a href="#init-py的作用" class="headerlink" title="__init__.py的作用"></a>__init__.py的作用</h2><p><code>__init__.py</code>主要是用来初始化 Python包（packages）的，它在模块加载最开始运行。 以下目录结构为示例：</p>
+<pre><code>├─test                                    
+│  ├─package_1
+│  │  ├─__init__.py 
+│  │  ├─m1.py    
+│  ├─package_2  
+│  │  ├─__init__.py 
+│  │  └─m2.py
+│  ├─test.py</code></pre><p>其中包含两个包<code>package_1</code>,<code>package_2</code></p>
+<h2 id="init-py中有什么"><a href="#init-py中有什么" class="headerlink" title="__init__.py中有什么"></a>__init__.py中有什么</h2><p>如上目录结构，如果两个包中的<code>__init__.py</code>都为空的话，默认在<code>test.py</code>中我们只能执行如下：</p>
+<pre><code>from package_2 import m2
+
+print(m2.m2s())</code></pre><p>当想要执行</p>
+<pre><code>import package_2
+print(package_2.m2.m2s())</code></pre><p>或</p>
+<pre><code>from package_2 import *
+print(m2.m2s())</code></pre><p>则会抛出异常</p>
+<pre><code>AttributeError: module &apos;package_2&apos; has no attribute &apos;m2&apos;</code></pre><p>这是因为在<code>__init__.py</code>中并没有进行包提升</p>
+<h2 id="如何执行"><a href="#如何执行" class="headerlink" title="如何执行"></a>如何执行</h2><p>此时以package_2包中的<code>__init__.py</code>为例 当我们在包中提升导入权限即可：</p>
+<pre><code>from package_2.m2 import m2s</code></pre><p>在test.py中，执行</p>
+<pre><code>from package_2 import m2s
+
+print(m2s())</code></pre><p>通常我们经常还会遇到 <code>from xxx import *</code> 我们只需要在<strong>init</strong>.py中加载<strong>all</strong>允许全部导出的模块即可，如在package_2的<strong>init</strong>.py中加入</p>
+<pre><code>__all__ = [&apos;m2&apos;]</code></pre><p>test.py中执行</p>
+<pre><code>from package_2 import *
+print(m2.m2s())</code></pre><p><code>__all__</code> 是一个列表变量，放的是你希望导入的模块的名字。 当 <code>__init__.py</code> 中定义了 <code>__all__</code> 变量时，import * 只能导入 <code>__all__</code>允许的模块</p>
+
+        
+    </section>
+</article>
+
+
+
+<a id="pagenext" href="/2018/06/02/mysql-e5-85-b1-e4-ba-ab-e9-94-81lock-in-share-mode-ef-bc-8c-e6-8e-92-e4-bb-96-e9-94-81for-update/" class="article-next" title="Mysql 共享锁(lock in share mode)，排他锁(for update)"><i class="icon-arrow-right"></i></a>
+
+
+<a id="pageprev" href="/2018/07/04/e6-8e-a8-e8-8d-90-ef-bc-9a-e8-b6-85-e5-a5-bd-e7-94-a8-e7-9a-84-laravel-repository-e5-8c-85/" class="article-prev" title="推荐：超好用的 Laravel Repository 包"><i class="icon-arrow-left"></i></a>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "e1cbbb8b52f5de53cbce",
+        clientSecret: "494fa22a9ca1b8d0a148ec8410e33eb1b08922bb",
+        repo: "crcms.github.io",
+        owner: "crcms",
+        admin: ["crcms"],
+        id: "2018/06/08/python-init-py-e4-bd-9c-e7-94-a8",
+        distractionFreeMode: true,
+        title: "Python: __init__.py 作用",
+        body: "http://blog.crcms.cn/2018/06/08/python-init-py-e4-bd-9c-e7-94-a8/",
+        labels: ["python","__init__.py","import"]
+    }).render('comments');
+    </script>
+</div>
+
+
+            </div>
+        </div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?2c09de12c175e88fd5cb35771db9e691";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
+    
+
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>Mysql 共享锁(lock in share mode)，排他锁(for update) | CRCMS</title>
+    <meta name="author" content="simon">
+    <meta name="keywords" content>
+    <meta name="description" content="共享锁(lock in share mode)简介允许不同事务之前共享加锁读取，但不允许其它事务修改或者加入排他锁 如果有修改必须等待一个事务提交完成，才可以执行，容易出现死锁共享锁事务之间的读取session1:start transaction;select * from test where id = 1 lock in share mode;session2:start transaction;select * from test where id = 1 lock in...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="CRCMS" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.png">
+    
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'icomoon';
+        src: url("/fonts/icomoon.eot?q628ml");
+        src: url("/fonts/icomoon.eot?q628ml#iefix") format('embedded-opentype'),
+             url("/fonts/icomoon.ttf?q628ml") format('truetype'),
+             url("/fonts/icomoon.woff?q628ml") format('woff'),
+             url("/fonts/icomoon.svg?q628ml#icomoon") format('svg');
+        font-weight: normal;
+        font-style: normal;
+    }
+    </style>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!--[if lt IE 9]>
+    <style type="text/css">
+    .nav-inner {top:0;}
+    .author-meta {position:static;top:0;}
+    .search-form {height:36px;}
+    </style>
+    <script type="text/javascript" src="https://unpkg.com/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <main class="app">
+        <header id="header" class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">CRCMS</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+            <a class="nav-item" href="/reward">
+                <span class="nav-text">支持</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.crcms.cn"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#共享锁-lock-in-share-mode"><span class="toc-number">1.</span> <span class="toc-text">共享锁(lock in share mode)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#简介"><span class="toc-number">1.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#共享锁事务之间的读取"><span class="toc-number">1.2.</span> <span class="toc-text">共享锁事务之间的读取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#共享锁之间的更新"><span class="toc-number">1.3.</span> <span class="toc-text">共享锁之间的更新</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结论："><span class="toc-number">1.4.</span> <span class="toc-text">结论：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#排他锁-for-update"><span class="toc-number">2.</span> <span class="toc-text">排他锁(for update)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#简介-1"><span class="toc-number">2.1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#排他锁不同事务之间的读取"><span class="toc-number">2.2.</span> <span class="toc-text">排他锁不同事务之间的读取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#排他锁事务之间的修改"><span class="toc-number">2.3.</span> <span class="toc-text">排他锁事务之间的修改</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">2.4.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content">
+            <div id="wrapper" class="wrapper" style="max-width: 800px">
+                <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            Mysql 共享锁(lock in share mode)，排他锁(for update)
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.crcms.cn/2018/06/02/mysql-e5-85-b1-e4-ba-ab-e9-94-81lock-in-share-mode-ef-bc-8c-e6-8e-92-e4-bb-96-e9-94-81for-update/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-06-02T06:38:37.000Z" itemprop="datePublished">2018-06-02</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/mysql/">mysql</a>, <a class="article-tag-link" href="/tags/共享锁/">共享锁</a>, <a class="article-tag-link" href="/tags/排他锁/">排他锁</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h2 id="共享锁-lock-in-share-mode"><a href="#共享锁-lock-in-share-mode" class="headerlink" title="共享锁(lock in share mode)"></a>共享锁(lock in share mode)</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>允许不同事务之前共享加锁读取，但不允许其它事务修改或者加入排他锁 如果有修改必须等待一个事务提交完成，才可以执行，容易出现死锁</p>
+<h3 id="共享锁事务之间的读取"><a href="#共享锁事务之间的读取" class="headerlink" title="共享锁事务之间的读取"></a>共享锁事务之间的读取</h3><p>session1:</p>
+<pre><code>start transaction;
+select * from test where id = 1 lock in share mode;</code></pre><p>session2:</p>
+<pre><code>start transaction;
+select * from test where id = 1 lock in share mode;</code></pre><p>此时session1和session2都可以正常获取结果，那么再加入session3 排他锁读取尝试 session3:</p>
+<pre><code>start transaction;
+select * from test where id = 1 for update;</code></pre><p>在session3中则无法获取数据，直到超时或其它事物commit</p>
+<pre><code>Lock wait timeout exceeded; try restarting transaction</code></pre><h3 id="共享锁之间的更新"><a href="#共享锁之间的更新" class="headerlink" title="共享锁之间的更新"></a>共享锁之间的更新</h3><p>当session1执行了修改语句： session1:</p>
+<pre><code>update test set name = &apos;kkkk&apos; where id = 1;</code></pre><p>可以很多获取执行结果。 当session2再次执行修改id=1的语句时： session2:</p>
+<pre><code>update test set name = &apos;zzz&apos; where id = 1;</code></pre><p>就会出现死锁或者锁超时，错误如下：</p>
+<pre><code>Deadlock found when trying to get lock; try restarting transaction</code></pre><p>或者：</p>
+<pre><code>Lock wait timeout exceeded; try restarting transaction</code></pre><p>必须等到session1完成commit动作后，session2才会正常执行，如果此时多个session并发执行，可想而知出现死锁的几率将会大增。 session3则更不可能</p>
+<h3 id="结论："><a href="#结论：" class="headerlink" title="结论："></a>结论：</h3><p>mysql共享锁(<code>lock in share mode</code>) - 允许其它事务也增加共享锁读取 - 不允许其它事物增加排他锁(<code>for update</code>) - 当事务同时增加共享锁时候，事务的更新必须等待先执行的事务commit后才行，如果同时并发太大可能很容易造成死锁 <strong>共享锁，事务都加，都能读。修改是惟一的，必须等待前一个事务commit，才可</strong></p>
+<h2 id="排他锁-for-update"><a href="#排他锁-for-update" class="headerlink" title="排他锁(for update)"></a>排他锁(for update)</h2><h3 id="简介-1"><a href="#简介-1" class="headerlink" title="简介"></a>简介</h3><p>当一个事物加入排他锁后，不允许其他事务加共享锁或者排它锁读取，更加不允许其他事务修改加锁的行。</p>
+<h3 id="排他锁不同事务之间的读取"><a href="#排他锁不同事务之间的读取" class="headerlink" title="排他锁不同事务之间的读取"></a>排他锁不同事务之间的读取</h3><p>同样以不同的session来举例 session1:</p>
+<pre><code>start transaction;
+select * from test where id = 1 for update;</code></pre><p>session2:</p>
+<pre><code>start transaction;
+select * from test where id = 1 for update;</code></pre><p>当session1执行完成后，再次执行session2，此时session2也会卡住，无法立刻获取查询的数据。直到出现超时</p>
+<pre><code>Lock wait timeout exceeded; try restarting transaction</code></pre><p>或session1 commit才会执行 那么再使用session3 加入共享锁尝试</p>
+<pre><code>select * from test where id = 1 lock in share mode;</code></pre><p>结果也是如此，和session2一样，超时或等待session1 commit</p>
+<pre><code>Lock wait timeout exceeded; try restarting transaction</code></pre><h3 id="排他锁事务之间的修改"><a href="#排他锁事务之间的修改" class="headerlink" title="排他锁事务之间的修改"></a>排他锁事务之间的修改</h3><p>当在session1中执行update语句：</p>
+<pre><code>update test set name = 123 where id = 1;</code></pre><p>可以正常获取结果</p>
+<pre><code>Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0</code></pre><p>此时在session2中执行修改</p>
+<pre><code>update test set name = &apos;s2&apos; where id = 1;</code></pre><p>则会卡住直接超时或session1 commit,才会正常吐出结果 session3也很明显和session2一样的结果，这里就不多赘述</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li>事务之间不允许其它排他锁或共享锁读取，修改更不可能</li>
+<li>一次只能有一个排他锁执行commit之后，其它事务才可执行</li>
+</ul>
+<p><strong>不允许其它事务增加共享或排他锁读取。修改是惟一的，必须等待前一个事务commit，才可</strong></p>
+
+        
+    </section>
+</article>
+
+
+
+<a id="pagenext" href="/2018/05/31/travisci-e6-8c-81-e7-bb-ad-e9-9b-86-e6-88-90-e8-87-aa-e5-8a-a8-e9-83-a8-e7-bd-b2/" class="article-next" title="TravisCI持续集成自动部署"><i class="icon-arrow-right"></i></a>
+
+
+<a id="pageprev" href="/2018/06/08/python-init-py-e4-bd-9c-e7-94-a8/" class="article-prev" title="Python: __init__.py 作用"><i class="icon-arrow-left"></i></a>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "e1cbbb8b52f5de53cbce",
+        clientSecret: "494fa22a9ca1b8d0a148ec8410e33eb1b08922bb",
+        repo: "crcms.github.io",
+        owner: "crcms",
+        admin: ["crcms"],
+        id: "2018/06/02/mysql-e5-85-b1-e4-ba-ab-e9-94-81lock-in-share-mode-ef-bc-8c-e6-8e-92-e4-bb-96-e9-94-81for-update",
+        distractionFreeMode: true,
+        title: "Mysql 共享锁(lock in share mode)，排他锁(for update)",
+        body: "http://blog.crcms.cn/2018/06/02/mysql-e5-85-b1-e4-ba-ab-e9-94-81lock-in-share-mode-ef-bc-8c-e6-8e-92-e4-bb-96-e9-94-81for-update/",
+        labels: ["mysql","共享锁","排他锁"]
+    }).render('comments');
+    </script>
+</div>
+
+
+            </div>
+        </div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?2c09de12c175e88fd5cb35771db9e691";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
+    
+
+</body>
+</html>

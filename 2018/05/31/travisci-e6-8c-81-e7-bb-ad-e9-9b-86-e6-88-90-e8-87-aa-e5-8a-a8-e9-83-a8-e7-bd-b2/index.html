@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+
+    
+
+    
+
+    <title>TravisCI持续集成自动部署 | CRCMS</title>
+    <meta name="author" content="simon">
+    <meta name="keywords" content>
+    <meta name="description" content="注册Travis CI账号在目录中增加.travis.yml具体设置见官网文档设置和服务端的加密通信进入当前git项目目录，运行命令ssh-keygen -t rsa -b 4096 -C &amp;apos;crcms@crcms.cn&amp;apos; -f ./deploy_rsa注意：使用此条命令会提示是否需要为ssh-keygen输入新密码，一定要为空（直接回车），因为travis不支持命令行输入，如果不为空则会卡住： 密匙拷贝到你的部署服务器上ssh-copy-id -i deploy...">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+
+    
+    <link rel="alternate" href="/atom.xml" title="CRCMS" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/images/favicon.png">
+    
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'icomoon';
+        src: url("/fonts/icomoon.eot?q628ml");
+        src: url("/fonts/icomoon.eot?q628ml#iefix") format('embedded-opentype'),
+             url("/fonts/icomoon.ttf?q628ml") format('truetype'),
+             url("/fonts/icomoon.woff?q628ml") format('woff'),
+             url("/fonts/icomoon.svg?q628ml#icomoon") format('svg');
+        font-weight: normal;
+        font-style: normal;
+    }
+    </style>
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!--[if lt IE 9]>
+    <style type="text/css">
+    .nav-inner {top:0;}
+    .author-meta {position:static;top:0;}
+    .search-form {height:36px;}
+    </style>
+    <script type="text/javascript" src="https://unpkg.com/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+
+    <main class="app">
+        <header id="header" class="header clearfix">
+    <div id="nav" class="nav">
+    <div class="nav-mobile">
+        <button id="open-panel" class="open-panel nav-mobile-item"><i class="icon-documents"></i></button>
+        <h1 class="nav-mobile-title nav-mobile-item">CRCMS</h1>
+        <button id="open-menus" class="open-panel nav-mobile-item"><i class="icon-library"></i></button>
+    </div>
+
+    <nav id="nav-inner" class="nav-inner">
+        
+            <a class="nav-item" href="/">
+                <span class="nav-text">首页</span>
+            </a>
+        
+            <a class="nav-item" href="/tags">
+                <span class="nav-text">标签</span>
+            </a>
+        
+            <a class="nav-item" href="/archives">
+                <span class="nav-text">归档</span>
+            </a>
+        
+            <a class="nav-item" href="/about">
+                <span class="nav-text">关于</span>
+            </a>
+        
+            <a class="nav-item" href="/reward">
+                <span class="nav-text">支持</span>
+            </a>
+        
+    </nav>
+</div>
+
+    <aside id="aside" class="aside">
+    <div id="aside-mask" class="aside-mask"></div>
+    <div id="aside-inner" class="aside-inner">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit"><i class="icon-search-stroke"></i></button><input type="hidden" name="sitesearch" value="http://blog.crcms.cn"></form>
+
+        
+        
+        
+        
+
+        
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#注册Travis-CI账号"><span class="toc-number">1.</span> <span class="toc-text">注册Travis CI账号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#在目录中增加-travis-yml"><span class="toc-number">2.</span> <span class="toc-text">在目录中增加.travis.yml</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#设置和服务端的加密通信"><span class="toc-number">3.</span> <span class="toc-text">设置和服务端的加密通信</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#加入github部署"><span class="toc-number">4.</span> <span class="toc-text">加入github部署</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#安装travis的命令行工具"><span class="toc-number">5.</span> <span class="toc-text">安装travis的命令行工具</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#生成enc加密文件"><span class="toc-number">6.</span> <span class="toc-text">生成enc加密文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#在Travis中进行ssh解密操作"><span class="toc-number">7.</span> <span class="toc-text">在Travis中进行ssh解密操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#主要的注意点："><span class="toc-number">8.</span> <span class="toc-text">主要的注意点：</span></a></li></ol>
+        
+    </div>
+</aside>
+
+</header>
+
+        <div id="content" class="content">
+            <div id="wrapper" class="wrapper" style="max-width: 800px">
+                <article class="article" itemscope itemprop="blogPost">
+    
+    <header class="article-header">
+        
+        <h1 itemprop="name">
+            TravisCI持续集成自动部署
+        </h1>
+        
+        <div class="article-meta clearfix">
+            <a class="article-date" href="http://blog.crcms.cn/2018/05/31/travisci-e6-8c-81-e7-bb-ad-e9-9b-86-e6-88-90-e8-87-aa-e5-8a-a8-e9-83-a8-e7-bd-b2/index.html">
+    
+    <i class="icon-calendar"></i>
+    
+    <time datetime="2018-05-31T23:46:01.000Z" itemprop="datePublished">2018-06-01</time>
+</a>
+
+            
+<div class="article-tag-list">
+    <i class="icon-tag"></i>
+    <a class="article-tag-link" href="/tags/TravisCI/">TravisCI</a>, <a class="article-tag-link" href="/tags/自动部署/">自动部署</a>
+</div>
+
+
+        </div>
+    </header>
+    
+    <section class="article-body markdown-body">
+        
+        <h2 id="注册Travis-CI账号"><a href="#注册Travis-CI账号" class="headerlink" title="注册Travis CI账号"></a>注册Travis CI账号</h2><h2 id="在目录中增加-travis-yml"><a href="#在目录中增加-travis-yml" class="headerlink" title="在目录中增加.travis.yml"></a>在目录中增加.travis.yml</h2><p>具体设置见<a href="https://docs.travis-ci.com/" title="travisCI文档" target="_blank" rel="noopener">官网文档</a></p>
+<h2 id="设置和服务端的加密通信"><a href="#设置和服务端的加密通信" class="headerlink" title="设置和服务端的加密通信"></a>设置和服务端的加密通信</h2><p>进入当前git项目目录，运行命令</p>
+<pre><code>ssh-keygen -t rsa -b 4096 -C &apos;crcms@crcms.cn&apos; -f ./deploy_rsa</code></pre><p>注意：使用此条命令会提示是否需要为ssh-keygen输入新密码，一定要为空（直接回车），因为travis不支持命令行输入，如果不为空则会卡住： 密匙拷贝到你的部署服务器上</p>
+<pre><code>ssh-copy-id -i deploy_rsa.pub &lt;ssh-user&gt;@&lt;deploy-host&gt;</code></pre><h2 id="加入github部署"><a href="#加入github部署" class="headerlink" title="加入github部署"></a>加入github部署</h2><p>打开github项目 <code>settings -&gt; Deploy keys</code> 将 <code>deploy_rsa.pub</code>内容复制到此处即可</p>
+<h2 id="安装travis的命令行工具"><a href="#安装travis的命令行工具" class="headerlink" title="安装travis的命令行工具"></a>安装travis的命令行工具</h2><pre><code>apt-get update
+apt-get install ruby ruby-dev
+gem install travis
+travis login</code></pre><h2 id="生成enc加密文件"><a href="#生成enc加密文件" class="headerlink" title="生成enc加密文件"></a>生成enc加密文件</h2><pre><code>travis encrypt-file deploy_rsa --add
+git add deploy_rsa.enc .travis.yml</code></pre><h2 id="在Travis中进行ssh解密操作"><a href="#在Travis中进行ssh解密操作" class="headerlink" title="在Travis中进行ssh解密操作"></a>在Travis中进行ssh解密操作</h2><p><code>.travis.yml</code>文件中增加：</p>
+<pre><code>addons:
+  ssh_known_hosts: &lt;deploy-host&gt;
+
+before_deploy:
+- openssl aes-256-cbc -K $encrypted_&lt;...&gt;_key -iv $encrypted_&lt;...&gt;_iv -in deploy_rsa.enc -out /tmp/deploy_rsa -d
+- eval &quot;$(ssh-agent -s)&quot;
+- chmod 600 /tmp/deploy_rsa
+- ssh-add /tmp/deploy_rsa</code></pre><p>注意： <code>$encrypted_&lt;...&gt;_key</code>需要自己替换，在 <code>travis encrypt-file deploy_rsa --add</code>命令中会自己生成一份相同名称的，替换即可 此时已可以正常编译，并且使用ssh免密通信</p>
+<h2 id="主要的注意点："><a href="#主要的注意点：" class="headerlink" title="主要的注意点："></a>主要的注意点：</h2><p><code>ssh-keygen</code> 生成时，不需要输入密码，直接回车即可</p>
+
+        
+    </section>
+</article>
+
+
+
+<a id="pagenext" href="/2018/05/30/pycharm-e6-90-ad-e5-bb-badocker-e7-8e-af-e5-a2-83-e8-bf-90-e8-a1-8cpython/" class="article-next" title="Pycharm搭建Docker环境运行Python"><i class="icon-arrow-right"></i></a>
+
+
+<a id="pageprev" href="/2018/06/02/mysql-e5-85-b1-e4-ba-ab-e9-94-81lock-in-share-mode-ef-bc-8c-e6-8e-92-e4-bb-96-e9-94-81for-update/" class="article-prev" title="Mysql 共享锁(lock in share mode)，排他锁(for update)"><i class="icon-arrow-left"></i></a>
+
+
+
+<div class="comments">
+    <div id="comments"></div>
+    <script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+    <script>
+    new Gitalk({
+        clientID: "e1cbbb8b52f5de53cbce",
+        clientSecret: "494fa22a9ca1b8d0a148ec8410e33eb1b08922bb",
+        repo: "crcms.github.io",
+        owner: "crcms",
+        admin: ["crcms"],
+        id: "2018/05/31/travisci-e6-8c-81-e7-bb-ad-e9-9b-86-e6-88-90-e8-87-aa-e5-8a-a8-e9-83-a8-e7-bd-b2",
+        distractionFreeMode: true,
+        title: "TravisCI持续集成自动部署",
+        body: "http://blog.crcms.cn/2018/05/31/travisci-e6-8c-81-e7-bb-ad-e9-9b-86-e6-88-90-e8-87-aa-e5-8a-a8-e9-83-a8-e7-bd-b2/",
+        labels: ["自动部署","TravisCI"]
+    }).render('comments');
+    </script>
+</div>
+
+
+            </div>
+        </div>
+        <footer class="footer">
+    Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, Theme by <a href="https://github.com/sanonz/hexo-theme-concise" target="_blank">Concise</a>
+
+    
+    <script>
+        var _hmt = _hmt || [];
+        (function () {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?2c09de12c175e88fd5cb35771db9e691";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    
+</footer>
+
+    </main>
+
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/1.9.0/jquery.min.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        var nodes = {
+            nav: $('#nav'),
+            aside: $('#aside'),
+            asideInner: $('#aside-inner'),
+            navInner: $('#nav-inner')
+        };
+
+        var doing = false;
+        nodes.asideInner.on('webkitAnimationEnd mozAnimationEnd oAnimationEnd oanimationend animationend', function() {
+            if (nodes.aside.hasClass('mobile-open')) {
+                nodes.aside.removeClass('mobile-open');
+            } else {
+                nodes.aside.removeClass('mobile-close panel-show');
+            }
+            doing = false;
+        });
+        $('#open-panel, #aside-mask').on('click', function() {
+            if (doing) {
+                return;
+            }
+
+            if (nodes.aside.hasClass('panel-show')) {
+                nodes.aside.addClass('mobile-close');
+            } else {
+                nodes.aside.addClass('mobile-open panel-show');
+            }
+        });
+        $('#open-menus').on('click', function() {
+            nodes.navInner.slideToggle();
+        });
+
+        if (window.innerWidth <= 960) {
+            setTimeout(function() {
+                nodes.navInner.slideUp();
+            }, 3000);
+        }
+    });
+    </script>
+    
+        <script src="/js/scrollspy.min.js"></script>
+        <script type="text/javascript">
+        $(document.body).scrollspy({target: '#aside-inner'});
+
+        $(window).on('resize', function() {
+            var hw = $('#header').width();
+            var ww = $('#wrapper').width();
+            var space = ($(this).width() - hw - ww) / 2 / 2;
+
+            var pageprev = $('#pageprev');
+            var pagenext = $('#pagenext');
+            var avg = (pageprev.width() + pagenext.width()) / 2
+
+            if(space > avg) {
+                var len = space - avg / 2;
+                var styles = {position: 'fixed', top: '50%', marginTop: - (pageprev.width() + pagenext.width()) / 4}
+                pageprev.css($.extend({left: hw + len}, styles));
+                pagenext.css($.extend({right: len}, styles));
+            } else {
+                pageprev.removeAttr('style');
+                pagenext.removeAttr('style');
+            }
+        }).trigger('resize');
+        </script>
+    
+
+</body>
+</html>
