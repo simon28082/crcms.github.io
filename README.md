@@ -1,6 +1,6 @@
 # CRCMS BLOG
 
-[![Build Status](https://www.travis-ci.org/crcms/crcms.github.io.svg?branch=source)](https://www.travis-ci.org/crcms/crcms.github.io)
+[![Build Status](https://travis-ci.com/crcms/crcms.github.io.svg?branch=source)](https://travis-ci.com/crcms/crcms.github.io)
 
 ## Install
 
